@@ -35,13 +35,14 @@ export default function ApprenantsManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedApprenant, setSelectedApprenant] = useState<Apprenant | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     email: '',
-    password: '',
+    password: '', // peut rester string vide
     firstName: '',
     lastName: '',
     isActive: true,
   });
+  
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -152,9 +153,9 @@ export default function ApprenantsManagement() {
 
       let submitData = { ...formData, roleId: apprenantRole._id };
       if (isEditMode && !submitData.password) {
-        submitData.password = undefined;
+        delete submitData.password; // Supprime le mot de passe vide
       }
-
+      
 
       const response = await fetch(url, {
         method,
