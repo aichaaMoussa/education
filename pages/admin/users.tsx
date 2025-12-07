@@ -147,10 +147,11 @@ export default function UsersManagement() {
       const method = isEditMode ? 'PUT' : 'POST';
 
       // Pour l'édition, ne pas envoyer le mot de passe s'il est vide
-      const submitData = { ...formData };
+      let submitData = { ...formData };
       if (isEditMode && !submitData.password) {
-        const { password, ...rest } = submitData;
-        submitData = rest;
+        if (isEditMode && !submitData.password) {
+          delete submitData.password; // supprime password si vide pour PUT
+        }
         
       }
 
