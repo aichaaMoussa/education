@@ -1,0 +1,129 @@
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
+import Link from 'next/link';
+import { FiMail, FiLock, FiLogIn } from 'react-icons/fi';
+import { FaGraduationCap } from 'react-icons/fa';
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
+import { showToast } from '../lib/toast';
+
+export default function Login() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    const loadingToast = showToast.loading('Connexion en cours...');
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showToast.error(data.message || 'Erreur de connexion');
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      showToast.success('Connexion réussie !');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
+    } catch (err) {
+      showToast.error('Une erreur est survenue');
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Head>
+        <title>Connexion - Easy Tech</title>
+      </Head>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="bg-blue-600 rounded-full p-3">
+                <FaGraduationCap className="text-4xl text-white" />
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Easy Tech</h1>
+            <h2 className="text-2xl font-semibold text-gray-700">Connexion</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Connectez-vous à votre compte pour continuer
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-xl p-8 border border-gray-100">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <FiMail className="inline w-4 h-4 mr-2" />
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="votre@email.com"
+                  className="w-full"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <FiLock className="inline w-4 h-4 mr-2" />
+                  Mot de passe
+                </label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  className="w-full"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                className="w-full flex items-center justify-center space-x-2"
+                isLoading={isLoading}
+              >
+                <FiLogIn className="w-5 h-5" />
+                <span>Se connecter</span>
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                Pas encore de compte ?{' '}
+                <Link href="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+                  Créer un compte
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
