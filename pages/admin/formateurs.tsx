@@ -135,9 +135,10 @@ export default function FormateursManagement() {
       
       const method = isEditMode ? 'PUT' : 'POST';
 
-      const submitData = { ...formData, roleId: formateurRole._id };
+      let submitData = { ...formData, roleId: formateurRole._id };
       if (isEditMode && !submitData.password) {
-        delete submitData.password;
+        const { password, ...rest } = submitData;
+  submitData = rest;
       }
 
       const response = await fetch(url, {
