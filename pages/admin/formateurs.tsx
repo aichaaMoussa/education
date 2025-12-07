@@ -34,7 +34,7 @@ export default function FormateursManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedFormateur, setSelectedFormateur] = useState<Formateur | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     email: '',
     password: '',
     firstName: '',
@@ -137,9 +137,9 @@ export default function FormateursManagement() {
 
       let submitData = { ...formData, roleId: formateurRole._id };
       if (isEditMode && !submitData.password) {
-        const { password, ...rest } = submitData;
-  submitData = rest;
+        delete submitData.password; // Supprime le mot de passe vide
       }
+      
 
       const response = await fetch(url, {
         method,
