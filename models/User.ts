@@ -23,7 +23,9 @@ const UserSchema: Schema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return this.isNew; // obligatoire seulement à la création
+      },
     },
     firstName: {
       type: String,

@@ -151,10 +151,9 @@ export default function ApprenantsManagement() {
       const method = isEditMode ? 'PUT' : 'POST';
 
       let submitData = { ...formData, roleId: apprenantRole._id };
-if (isEditMode && !submitData.password) {
-  const { password, ...rest } = submitData;
-  submitData = rest;
-}
+      if (isEditMode && !submitData.password) {
+        submitData.password = undefined;
+      }
 
 
       const response = await fetch(url, {
