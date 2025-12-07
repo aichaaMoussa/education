@@ -148,12 +148,12 @@ export default function UsersManagement() {
 
       // Pour l'édition, ne pas envoyer le mot de passe s'il est vide
       let submitData = { ...formData };
-      if (isEditMode && !submitData.password) {
+     
         if (isEditMode && !submitData.password) {
           delete submitData.password; // supprime password si vide pour PUT
         }
         
-      }
+      
 
       const response = await fetch(url, {
         method,
