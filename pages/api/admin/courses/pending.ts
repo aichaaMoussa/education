@@ -5,9 +5,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 //import connectDB from '../../../lib/mongodb';
 import Course from '@models/Course';
 
-
-
-async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectDB();
 
   if (req.method !== 'GET') {
@@ -31,5 +29,3 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 }
 
 export default handler;
-
-
