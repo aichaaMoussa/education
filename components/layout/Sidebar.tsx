@@ -12,7 +12,7 @@ type SidebarItem = {
   label: string;
   href: string;
   icon: JSX.Element;
-  permission?: (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+  permission?: (typeof Permissions)[keyof typeof Permissions];
 };
 
 interface SidebarProps {
