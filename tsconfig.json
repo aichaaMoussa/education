@@ -13,15 +13,21 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": ".",
+
+    "paths": {
+      "@/*": ["./*"],
+      "@models/*": ["models/*"],
+      "@lib/*": ["lib/*"]
+    },
+
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "paths": {
-      "@/*": ["./*"]
-    }
+    ]
   },
+
   "include": [
     "next-env.d.ts",
     "**/*.ts",
@@ -30,5 +36,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
+
   "exclude": ["node_modules"]
 }

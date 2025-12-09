@@ -147,7 +147,7 @@ export default function Statistics() {
                 <p className="text-gray-600 mt-1">Vue d'ensemble complète de la plateforme</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {statCards.map((stat, index) => (
                   <Card key={index} hover className="overflow-hidden">
                     <div className="flex items-center justify-between">
@@ -161,7 +161,7 @@ export default function Statistics() {
                     </div>
                   </Card>
                 ))}
-              </div>
+              </div> */}
 
               <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>

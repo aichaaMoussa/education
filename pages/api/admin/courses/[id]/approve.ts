@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 // Import models first
-import '../../../../models';
-import connectDB from '../../../../lib/mongodb';
-import Course from '../../../../models/Course';
-import { withPermission, AuthenticatedRequest } from '../../../../lib/middleware';
-import { PERMISSIONS } from '../../../../lib/permissions';
+//import '@models';
+import connectDB from '@lib/mongodb';
+import Course from '@models/Course';
+import { withPermission, AuthenticatedRequest } from '@lib/middleware';
+import { PERMISSIONS } from '@lib/permissions';
+
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   await connectDB();
