@@ -62,11 +62,11 @@ export default function Dashboard() {
 
   if (user?.role?.name === 'admin') {
     sidebarItems.push(
-      { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FaChalkboardTeacher className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
-      { label: 'Gestion Apprenants', href: '/admin/apprenants', icon: <FaUserGraduate className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
-      { label: 'Valider Formations', href: '/admin/courses/approve', icon: <FiTrendingUp className="w-5 h-5" />, permission: PERMISSIONS.COURSE_READ },
-      { label: 'Statistiques', href: '/admin/statistics', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_ADMIN },
-      { label: 'Gestion Rôles', href: '/admin/roles', icon: <FiUsers className="w-5 h-5" />, permission: PERMISSIONS.ROLE_READ }
+      { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FaChalkboardTeacher className="w-5 h-5" /> },
+      { label: 'Gestion Apprenants', href: '/admin/apprenants', icon: <FaUserGraduate className="w-5 h-5" />  },
+      { label: 'Valider Formations', href: '/admin/courses/approve', icon: <FiTrendingUp className="w-5 h-5" />  },
+      { label: 'Statistiques', href: '/admin/statistics', icon: <FiBarChart2 className="w-5 h-5" /> },
+      { label: 'Gestion Rôles', href: '/admin/roles', icon: <FiUsers className="w-5 h-5" /> }
     );
   }
 
