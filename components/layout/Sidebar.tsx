@@ -8,12 +8,12 @@ import {
 } from 'react-icons/fi';
 import { FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
 
-interface SidebarItem {
+type SidebarItem = {
   label: string;
   href: string;
-  icon: React.ReactNode;
-  permission?: string;
-}
+  icon: JSX.Element;
+  permission?: (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+};
 
 interface SidebarProps {
   items: SidebarItem[];
