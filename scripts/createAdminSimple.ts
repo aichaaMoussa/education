@@ -1,9 +1,9 @@
-// Script simplifié pour créer un utilisateur admin (sans interaction)
-const connectDB = require('../lib/mongodb').default;
-const User = require('../models/User').default;
-const Role = require('../models/Role').default;
-const { hashPassword } = require('../lib/auth');
-const { ROLE_PERMISSIONS } = require('../lib/permissions');
+// scripts/createAdminSimple.ts
+import connectDB from '../lib/mongodb';
+import User from '../models/User';
+import Role from '../models/Role';
+import { hashPassword } from '../lib/auth';
+import { ROLE_PERMISSIONS } from '../lib/permissions';
 
 async function createAdmin() {
   try {
@@ -21,10 +21,10 @@ async function createAdmin() {
         console.log(`✅ Rôle ${roleName} créé`);
       }
     }
-    
+
     const adminRole = await Role.findOne({ name: 'admin' });
 
-    // Informations par défaut pour l'admin
+    // Infos par défaut pour l'admin
     const email = process.env.ADMIN_EMAIL || 'admin@education.com';
     const password = process.env.ADMIN_PASSWORD || 'admin123';
     const firstName = process.env.ADMIN_FIRSTNAME || 'Admin';
@@ -33,20 +33,18 @@ async function createAdmin() {
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      // Mettre à jour l'utilisateur existant pour lui donner le rôle admin
-      existingUser.role = adminRole._id;
+      existingUser.role = adminRole!._id;
       await existingUser.save();
       console.log('✅ Utilisateur existant mis à jour avec le rôle admin');
       console.log(`   Email: ${existingUser.email}`);
     } else {
-      // Créer un nouvel utilisateur admin
       const hashedPassword = await hashPassword(password);
       const adminUser = await User.create({
         email,
         password: hashedPassword,
         firstName,
         lastName,
-        role: adminRole._id,
+        role: adminRole!._id,
         isActive: true,
       });
       console.log('✅ Utilisateur admin créé avec succès');
@@ -63,4 +61,3 @@ async function createAdmin() {
 }
 
 createAdmin();
-
