@@ -7,7 +7,8 @@ import {
   FiShield, FiUserCheck
 } from 'react-icons/fi';
 import { FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
-import { PERMISSIONS } from '../lib/permissions';
+import { PERMISSIONS } from '../../lib/permissions';
+
 
 type SidebarItem = {
   label: string;
