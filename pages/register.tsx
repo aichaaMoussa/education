@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { FiUser, FiMail, FiLock, FiUserPlus, FiChalkboard } from 'react-icons/fi';
+import { FiUser, FiMail, FiLock, FiUserPlus } from 'react-icons/fi';
 import { FaGraduationCap, FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
