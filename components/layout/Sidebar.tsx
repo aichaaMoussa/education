@@ -7,17 +7,18 @@ import {
   FiShield, FiUserCheck
 } from 'react-icons/fi';
 import { FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
+import { PERMISSIONS } from '../lib/permissions';
 
 type SidebarItem = {
   label: string;
   href: string;
-  icon: JSX.Element;
-  permission?: (typeof Permissions)[keyof typeof Permissions];
+  icon: JSX.Element | string;
+  permission?: (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 };
 
 interface SidebarProps {
   items: SidebarItem[];
-  userPermissions?: string[];
+  userPermissions?: ((typeof PERMISSIONS)[keyof typeof PERMISSIONS])[];
 }
 
 const iconMap: { [key: string]: React.ReactNode } = {
@@ -27,7 +28,7 @@ const iconMap: { [key: string]: React.ReactNode } = {
   '🔐': <FiShield className="w-5 h-5" />,
   '➕': <FiPlus className="w-5 h-5" />,
   '✅': <FiCheckCircle className="w-5 h-5" />,
-  '📈': <FiBarChart2 className="w-5 h-5" />,
+  '📈': <FiTrendingUp className="w-5 h-5" />,
   '👨‍🏫': <FaChalkboardTeacher className="w-5 h-5" />,
   '🛒': <FiShoppingCart className="w-5 h-5" />,
   '📖': <FiBook className="w-5 h-5" />,
