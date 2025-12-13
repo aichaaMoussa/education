@@ -46,8 +46,6 @@ export default function Login() {
         setIsLoading(false);
         // Forcer la mise à jour de la session
         await getSession();
-        // Rafraîchir la page pour mettre à jour la session
-        router.refresh();
         // Rediriger vers le dashboard
         router.replace('/dashboard');
       } else {
