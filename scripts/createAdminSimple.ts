@@ -24,11 +24,11 @@ async function createAdmin() {
 
     const adminRole = await Role.findOne({ name: 'admin' });
 
-    // Infos par défaut pour l'admin
-    const email = process.env.ADMIN_EMAIL || 'admin@education.com';
-    const password = process.env.ADMIN_PASSWORD || 'admin123';
-    const firstName = process.env.ADMIN_FIRSTNAME || 'Admin';
-    const lastName = process.env.ADMIN_LASTNAME || 'User';
+    // Infos du super admin depuis les variables d'environnement
+    const email = process.env.SUPER_ADMIN_EMAIL || 'admin@education.com';
+    const password = process.env.SUPER_ADMIN_PASSWORD || 'admin123';
+    const firstName = process.env.SUPER_ADMIN_FIRSTNAME || 'Super';
+    const lastName = process.env.SUPER_ADMIN_LASTNAME || 'Admin';
 
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ email });

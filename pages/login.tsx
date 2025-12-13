@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { signIn, useSession, getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { FiMail, FiLock, FiLogIn } from 'react-icons/fi';
@@ -10,43 +11,67 @@ import { showToast } from '../lib/toast';
 
 export default function Login() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Rediriger si déjà connecté
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      router.push('/dashboard');
+    }
+  }, [status, session, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const loadingToast = showToast.loading('Connexion en cours...');
+    showToast.loading('Connexion en cours...');
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        showToast.error(data.message || 'Erreur de connexion');
+      if (result?.error) {
+        showToast.error(result.error || 'Erreur de connexion');
         setIsLoading(false);
         return;
       }
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      showToast.success('Connexion réussie !');
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 500);
+      if (result?.ok) {
+        showToast.success('Connexion réussie !');
+        setIsLoading(false);
+        // Forcer la mise à jour de la session
+        await getSession();
+        // Rafraîchir la page pour mettre à jour la session
+        router.refresh();
+        // Rediriger vers le dashboard
+        router.replace('/dashboard');
+      } else {
+        setIsLoading(false);
+      }
     } catch (err) {
       showToast.error('Une erreur est survenue');
       setIsLoading(false);
     }
   };
+
+  // Afficher un loader pendant la vérification de la session
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Ne rien afficher si déjà connecté (redirection en cours)
+  if (status === 'authenticated') {
+    return null;
+  }
 
   return (
     <>

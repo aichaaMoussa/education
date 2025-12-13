@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 import { hasPermission, Permission } from '../../lib/permissions';
-import { getUserById, AuthUser } from '../../lib/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,57 +15,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole,
 }) => {
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        router.push('/login');
-        return;
-      }
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
 
-      try {
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          localStorage.removeItem('token');
-          router.push('/login');
-          return;
-        }
-
-        const userData = await response.json();
-        setUser(userData);
-
-        // Vérifier les permissions
-        if (requiredPermission && !hasPermission(userData.role.permissions, requiredPermission)) {
-          router.push('/unauthorized');
-          return;
-        }
-
-        // Vérifier le rôle
-        if (requiredRole && userData.role.name !== requiredRole) {
-          router.push('/unauthorized');
-          return;
-        }
-      } catch (error) {
-        localStorage.removeItem('token');
-        router.push('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [router, requiredPermission, requiredRole]);
-
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -73,7 +31,32 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  if (!user) {
+  if (status === 'unauthenticated' || !session) {
+    return null;
+  }
+
+  const user = session.user;
+
+  // Vérifier les permissions
+  useEffect(() => {
+    if (requiredPermission && user.role && !hasPermission(user.role.permissions, requiredPermission)) {
+      router.push('/unauthorized');
+    }
+  }, [requiredPermission, user.role, router]);
+
+  // Vérifier le rôle
+  useEffect(() => {
+    if (requiredRole && user.role && user.role.name !== requiredRole) {
+      router.push('/unauthorized');
+    }
+  }, [requiredRole, user.role, router]);
+
+  // Vérifier les permissions et rôles avant de rendre
+  if (requiredPermission && user.role && !hasPermission(user.role.permissions, requiredPermission)) {
+    return null;
+  }
+
+  if (requiredRole && user.role && user.role.name !== requiredRole) {
     return null;
   }
 

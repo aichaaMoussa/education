@@ -46,10 +46,20 @@ npm install
 ```
 
 2. **Configurer les variables d'environnement** :
-Créez un fichier `.env.local` à la racine du projet :
+Créez un fichier `.env.local` à la racine du projet (vous pouvez copier `.env.example`) :
 ```env
+# Database Connection
 MONGODB_URI=mongodb://localhost:27017/education
-JWT_SECRET=your-secret-key-change-in-production
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret-key-change-in-production-make-it-long-and-random
+
+# Super Admin Credentials
+SUPER_ADMIN_EMAIL=admin@education.com
+SUPER_ADMIN_PASSWORD=admin123
+SUPER_ADMIN_FIRSTNAME=Super
+SUPER_ADMIN_LASTNAME=Admin
 ```
 
 3. **Initialiser les rôles** :
@@ -57,10 +67,12 @@ JWT_SECRET=your-secret-key-change-in-production
 npm run init:roles
 ```
 
-4. **Créer un compte admin** :
+4. **Créer le super admin** :
 ```bash
-npm run create:admin
+npm run init:super-admin
 ```
+
+Le super admin sera créé automatiquement avec les credentials définis dans le fichier `.env.local`.
 
 5. **Lancer le serveur de développement** :
 ```bash

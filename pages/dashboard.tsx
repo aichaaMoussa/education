@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useSession, signOut } from 'next-auth/react';
 import { FiBook, FiUsers, FiFileText, FiTrendingUp, FiBarChart2, FiPlus, FiShoppingCart } from 'react-icons/fi';
 import { FaGraduationCap, FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
 import Header from '../components/layout/Header';
@@ -13,7 +14,7 @@ import { showToast } from '../lib/toast';
 
 export default function Dashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const { data: session } = useSession();
   const [stats, setStats] = useState({
     courses: 0,
     students: 0,
@@ -21,27 +22,16 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-
-    if (!token || !userData) {
-      router.push('/login');
-      return;
+    if (session?.user) {
+      // Charger les statistiques
+      fetchStats();
     }
-
-    setUser(JSON.parse(userData));
-
-    // Charger les statistiques
-    fetchStats();
-  }, [router]);
+  }, [session]);
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
       // Ici vous pouvez appeler votre API pour récupérer les stats
-      // const response = await fetch('/api/stats', {
-      //   headers: { Authorization: `Bearer ${token}` },
-      // });
+      // const response = await fetch('/api/stats');
       // const data = await response.json();
       // setStats(data);
     } catch (error) {
@@ -49,11 +39,12 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
     router.push('/login');
   };
+
+  const user = session?.user;
 
   const sidebarItems = [
     { label: 'Dashboard', href: '/dashboard', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_VIEW },
@@ -94,13 +85,20 @@ export default function Dashboard() {
         <title>Dashboard - Easy Tech</title>
       </Head>
       <div className="min-h-screen bg-gray-50">
-        <Header user={user} onLogout={handleLogout} />
+        <Header 
+          user={user ? {
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            role: { name: user.role?.name || '' }
+          } : undefined} 
+          onLogout={handleLogout} 
+        />
         <div className="flex">
-          <Sidebar items={sidebarItems} userPermissions={user.role?.permissions || []} />
+          <Sidebar items={sidebarItems} userPermissions={(user?.role?.permissions || []) as any} />
           <main className="flex-1 p-8">
             <div className="max-w-7xl mx-auto">
               <h1 className="text-3xl font-bold text-gray-900 mb-8">
-                Bienvenue, {user.firstName} {user.lastName}!
+                Bienvenue, {user?.firstName || ''} {user?.lastName || ''}!
               </h1>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
