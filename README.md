@@ -60,7 +60,21 @@ SUPER_ADMIN_EMAIL=admin@education.com
 SUPER_ADMIN_PASSWORD=admin123
 SUPER_ADMIN_FIRSTNAME=Super
 SUPER_ADMIN_LASTNAME=Admin
+
+# Firebase Configuration (pour le stockage des fichiers)
+NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 ```
+
+**Note pour Firebase** : 
+- Créez un projet Firebase sur [Firebase Console](https://console.firebase.google.com/)
+- Activez Firebase Storage
+- Configurez les règles de sécurité pour permettre l'upload aux utilisateurs authentifiés
+- Copiez les valeurs de configuration dans votre `.env.local`
 
 3. **Initialiser les rôles** :
 ```bash

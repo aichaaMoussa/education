@@ -55,7 +55,7 @@ export default function Courses() {
             <h1 className="text-3xl font-bold text-gray-900">Cours disponibles</h1>
             {user?.role?.permissions?.includes(PERMISSIONS.COURSE_CREATE) && (
               <Button
-                onClick={() => router.push('/courses/create')}
+                onClick={() => router.push('admin/courses/create')}
                 variant="primary"
               >
                 + Créer un cours

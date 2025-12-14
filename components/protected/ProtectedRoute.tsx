@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { hasPermission, Permission } from '../../lib/permissions';
@@ -16,13 +16,49 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [isAuthorized, setIsAuthorized] = useState(true);
 
+  // Tous les hooks doivent être appelés avant tous les returns conditionnels
   useEffect(() => {
+    if (status === 'loading') {
+      return;
+    }
+
     if (status === 'unauthenticated') {
       router.push('/login');
+      return;
     }
-  }, [status, router]);
 
+    if (!session || !session.user) {
+      router.push('/login');
+      return;
+    }
+
+    const user = session.user;
+
+    // Vérifier les permissions
+    if (requiredPermission && user.role) {
+      const hasRequiredPermission = hasPermission(user.role.permissions, requiredPermission);
+      if (!hasRequiredPermission) {
+        setIsAuthorized(false);
+        router.push('/unauthorized');
+        return;
+      }
+    }
+
+    // Vérifier le rôle
+    if (requiredRole && user.role) {
+      if (user.role.name !== requiredRole) {
+        setIsAuthorized(false);
+        router.push('/unauthorized');
+        return;
+      }
+    }
+
+    setIsAuthorized(true);
+  }, [status, session, requiredPermission, requiredRole, router]);
+
+  // Rendu conditionnel après tous les hooks
   if (status === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -31,32 +67,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  if (status === 'unauthenticated' || !session) {
-    return null;
-  }
-
-  const user = session.user;
-
-  // Vérifier les permissions
-  useEffect(() => {
-    if (requiredPermission && user.role && !hasPermission(user.role.permissions, requiredPermission)) {
-      router.push('/unauthorized');
-    }
-  }, [requiredPermission, user.role, router]);
-
-  // Vérifier le rôle
-  useEffect(() => {
-    if (requiredRole && user.role && user.role.name !== requiredRole) {
-      router.push('/unauthorized');
-    }
-  }, [requiredRole, user.role, router]);
-
-  // Vérifier les permissions et rôles avant de rendre
-  if (requiredPermission && user.role && !hasPermission(user.role.permissions, requiredPermission)) {
-    return null;
-  }
-
-  if (requiredRole && user.role && user.role.name !== requiredRole) {
+  if (status === 'unauthenticated' || !session || !isAuthorized) {
     return null;
   }
 

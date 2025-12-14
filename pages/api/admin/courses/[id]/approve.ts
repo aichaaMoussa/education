@@ -1,13 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-// Import models first
-//import '@models';
-import connectDB from '@lib/mongodb';
-import Course from '@models/Course';
-import { withPermission, AuthenticatedRequest } from '@lib/middleware';
-import { PERMISSIONS } from '@lib/permissions';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../../../../auth/[...nextauth]';
+import connectDB from '../../../../lib/mongodb';
+import Course from '../../../../models/Course';
+import '../../../../models';
+import { PERMISSIONS, hasPermission } from '../../../../lib/permissions';
 
-
-async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectDB();
   const { id } = req.query;
 
@@ -20,16 +19,32 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   try {
+    // Vérifier l'authentification
+    const session = await getServerSession(req, res, authOptions);
+    if (!session || !session.user) {
+      return res.status(401).json({ message: 'Non authentifié' });
+    }
+
+    // Vérifier les permissions
+    const userRole = session.user.role;
+    if (!userRole || !hasPermission(userRole.permissions, PERMISSIONS.COURSE_UPDATE)) {
+      return res.status(403).json({ message: 'Accès refusé' });
+    }
+
     const { action } = req.body; // 'approve' ou 'reject'
 
-    if (!req.user) {
-      return res.status(401).json({ message: 'Non authentifié' });
+    // Récupérer l'utilisateur pour obtenir son ID
+    const User = (await import('../../../../models/User')).default;
+    const user = await User.findOne({ email: session.user.email });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 
     const updateData: any = {};
     if (action === 'approve') {
       updateData.isApproved = true;
-      updateData.approvedBy = req.user.id;
+      updateData.approvedBy = user._id;
       updateData.approvedAt = new Date();
     } else if (action === 'reject') {
       updateData.isApproved = false;
@@ -59,5 +74,5 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 }
 
-export default withPermission(PERMISSIONS.COURSE_UPDATE, handler);
+export default handler;
 

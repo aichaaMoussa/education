@@ -63,7 +63,7 @@ export default function Dashboard() {
 
   if (user?.role?.name === 'formateur' || user?.role?.name === 'instructor') {
     sidebarItems.push(
-      { label: 'Créer une Formation', href: '/courses/create', icon: <FiPlus className="w-5 h-5" /> },
+      { label: 'Créer une Formation', href: '/admin/courses/create', icon: <FiPlus className="w-5 h-5" /> },
       { label: 'Mes Formations', href: '/formateur/courses', icon: <FiBook className="w-5 h-5" />,  }
     );
   }
