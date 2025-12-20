@@ -1,55 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../lib/authOptions';
-import formidable from 'formidable';
-import fs from 'fs';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-// Désactiver le body parser par défaut pour gérer les fichiers
+// Désactiver le body parser pour gérer les fichiers
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: {
+      sizeLimit: '500mb',
+    },
   },
 };
-
-// Import dynamique de Firebase Admin pour éviter les erreurs si non configuré
-async function getFirebaseAdmin() {
-  try {
-    const admin = await import('firebase-admin');
-    const { getApps, initializeApp, cert } = admin.default;
-    
-    if (!getApps().length) {
-      // Vérifier si on a un service account key
-      const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-      
-      if (serviceAccount) {
-        try {
-          const serviceAccountKey = JSON.parse(serviceAccount);
-          initializeApp({
-            credential: cert(serviceAccountKey),
-            storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-          });
-        } catch (e) {
-          // Si pas de service account, utiliser les variables d'environnement
-          initializeApp({
-            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-            storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-          });
-        }
-      } else {
-        initializeApp({
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-          storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-        });
-      }
-    }
-    
-    return admin.default;
-  } catch (error) {
-    console.error('Error initializing Firebase Admin:', error);
-    throw error;
-  }
-}
 
 export default async function handler(
   req: NextApiRequest,
@@ -66,83 +27,93 @@ export default async function handler(
       return res.status(401).json({ message: 'Non authentifié' });
     }
 
-    // Parser le formulaire
-    const form = formidable({
-      maxFileSize: 500 * 1024 * 1024, // 500MB
-      keepExtensions: true,
-      uploadDir: path.join(process.cwd(), 'tmp'),
+    // Initialiser Supabase avec la clé de service (bypass RLS)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(500).json({ 
+        message: 'Configuration Supabase manquante. Vérifiez SUPABASE_SERVICE_ROLE_KEY dans .env.local'
+      });
+    }
+
+    // Valider que la clé n'est pas un placeholder et qu'elle a la bonne longueur (JWT fait ~400+ caractères)
+    if (supabaseServiceKey === 'your-service-role-key-here' || supabaseServiceKey.length < 100) {
+      return res.status(500).json({ 
+        message: 'SUPABASE_SERVICE_ROLE_KEY invalide. Veuillez copier la vraie service_role key depuis Supabase Settings → API. La clé doit faire plus de 100 caractères et commencer par "eyJ".'
+      });
+    }
+
+    // Créer le client Supabase avec la service role key (bypass RLS automatiquement)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
     });
 
-    // Créer le dossier tmp s'il n'existe pas
-    const tmpDir = path.join(process.cwd(), 'tmp');
-    if (!fs.existsSync(tmpDir)) {
-      fs.mkdirSync(tmpDir, { recursive: true });
+    // Récupérer le fichier depuis le body
+    const { file, fileName, fileType } = req.body;
+
+    if (!file || !fileName || !fileType) {
+      return res.status(400).json({ 
+        message: 'Fichier, fileName et fileType sont requis' 
+      });
     }
 
-    const [fields, files] = await form.parse(req);
-    const file = Array.isArray(files.file) ? files.file[0] : files.file;
-    const fileType = Array.isArray(fields.type) ? fields.type[0] : fields.type;
-
-    if (!file) {
-      return res.status(400).json({ message: 'Aucun fichier fourni' });
+    if (fileType !== 'pdf' && fileType !== 'video') {
+      return res.status(400).json({ 
+        message: 'Type de fichier invalide. Utilisez "pdf" ou "video"' 
+      });
     }
 
-    if (!fileType || (fileType !== 'pdf' && fileType !== 'video')) {
-      return res.status(400).json({ message: 'Type de fichier invalide. Utilisez "pdf" ou "video"' });
+    // Convertir la chaîne base64 en Buffer
+    const fileBuffer = Buffer.from(file, 'base64');
+    const filePath = `${fileType}s/${Date.now()}_${fileName}`;
+
+    // Déterminer le content type
+    let contentType = 'application/octet-stream';
+    if (fileType === 'pdf') {
+      contentType = 'application/pdf';
+    } else if (fileType === 'video') {
+      // Essayer de détecter le type de vidéo depuis le nom du fichier
+      if (fileName.toLowerCase().endsWith('.mp4')) contentType = 'video/mp4';
+      else if (fileName.toLowerCase().endsWith('.mov')) contentType = 'video/quicktime';
+      else if (fileName.toLowerCase().endsWith('.avi')) contentType = 'video/x-msvideo';
+      else contentType = 'video/mp4';
     }
 
-    // Lire le fichier
-    const fileData = fs.readFileSync(file.filepath);
-    const fileName = `${fileType}s/${Date.now()}_${file.originalFilename || 'file'}`;
-    
-    // Upload vers Firebase Storage avec Admin SDK
-    try {
-      const admin = await getFirebaseAdmin();
-      const { getStorage } = await import('firebase-admin/storage');
-      const bucket = getStorage().bucket();
-      const fileRef = bucket.file(fileName);
-      
-      await fileRef.save(fileData, {
-        metadata: {
-          contentType: file.mimetype || (fileType === 'pdf' ? 'application/pdf' : 'video/mp4'),
-        },
+    // Upload vers Supabase Storage avec la clé de service (bypass RLS)
+    const { data, error } = await supabase.storage
+      .from('education')
+      .upload(filePath, fileBuffer, {
+        contentType: contentType,
+        upsert: false,
       });
 
-      // Obtenir l'URL de téléchargement
-      await fileRef.makePublic();
-      const downloadURL = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-
-      // Supprimer le fichier temporaire
-      try {
-        fs.unlinkSync(file.filepath);
-      } catch (e) {
-        // Ignorer les erreurs de suppression
-      }
-
-      return res.status(200).json({
-        url: downloadURL,
-        fileName: file.originalFilename,
-        size: file.size,
+    if (error) {
+      console.error('Supabase upload error:', error);
+      return res.status(500).json({ 
+        message: 'Erreur lors de l\'upload du fichier',
+        error: error.message 
       });
-    } catch (firebaseError: any) {
-      // Si Firebase Admin échoue, essayer une approche alternative
-      console.error('Firebase Admin upload error:', firebaseError);
-      
-      // Supprimer le fichier temporaire
-      try {
-        fs.unlinkSync(file.filepath);
-      } catch (e) {
-        // Ignorer les erreurs de suppression
-      }
-      
-      throw new Error(`Erreur lors de l'upload Firebase: ${firebaseError.message || 'Erreur inconnue'}`);
     }
+
+    // Obtenir l'URL publique
+    const { data: urlData } = supabase.storage
+      .from('education')
+      .getPublicUrl(filePath);
+
+    return res.status(200).json({
+      url: urlData.publicUrl,
+      fileName: fileName,
+      filePath: filePath,
+    });
   } catch (error: any) {
-    console.error('Upload error:', error);
+    console.error('Upload API error:', error);
     return res.status(500).json({ 
       message: 'Erreur lors de l\'upload du fichier',
-      error: error.message || 'Erreur inconnue'
+      error: error.message 
     });
   }
 }
-

@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { 
   FiBook, FiFileText, FiVideo, FiX, FiUpload, FiCheckCircle,
-  FiDollarSign, FiTag, FiFile, FiImage, FiAlertCircle
+  FiDollarSign, FiTag, FiFile, FiImage
 } from 'react-icons/fi';
 import Header from '../../../components/layout/Header';
 import Sidebar from '../../../components/layout/Sidebar';
@@ -15,6 +15,12 @@ import ProtectedRoute from '../../../components/protected/ProtectedRoute';
 import { PERMISSIONS } from '../../../lib/permissions';
 import { showToast } from '../../../lib/toast';
 import { useDropzone } from 'react-dropzone';
+// ========== IMPORTS FIREBASE (COMMENTÉS) ==========
+// import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+// import { storage } from '../../../lib/firebase';
+
+// ========== IMPORTS SUPABASE (COMMENTÉ - Upload via API serveur maintenant) ==========
+// import { supabase } from '../../../lib/supabase';
 
 interface UploadedFile {
   file: File;
@@ -110,30 +116,78 @@ export default function CreateCourse() {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
+  // ========== FONCTION UPLOAD FIREBASE (COMMENTÉE) ==========
+  // const uploadFile = async (file: File, type: 'pdf' | 'video'): Promise<string> => {
+  //   const fileName = `${type}s/${Date.now()}_${file.name}`;
+  //   const storageRef = ref(storage, fileName);
+  //   
+  //   return new Promise((resolve, reject) => {
+  //     const uploadTask = uploadBytesResumable(storageRef, file);
+  //     
+  //     uploadTask.on(
+  //       'state_changed',
+  //       (snapshot) => {
+  //         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //         // Mettre à jour la progression si nécessaire
+  //       },
+  //       (error) => {
+  //         reject(error);
+  //       },
+  //       async () => {
+  //         try {
+  //           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+  //           resolve(downloadURL);
+  //         } catch (error) {
+  //           reject(error);
+  //         }
+  //       }
+  //     );
+  //   });
+  // };
+
+  // ========== FONCTION UPLOAD SUPABASE ==========
+  // Upload via API serveur pour bypasser RLS avec la service role key
   const uploadFile = async (file: File, type: 'pdf' | 'video'): Promise<string> => {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type);
+      // Convertir le fichier en base64 pour l'envoi via API (méthode optimisée pour gros fichiers)
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      
+      // Convertir par chunks pour éviter "Maximum call stack size exceeded"
+      let binaryString = '';
+      const chunkSize = 8192; // Traiter par chunks de 8KB
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.slice(i, Math.min(i + chunkSize, uint8Array.length));
+        // Convertir chunk par chunk sans utiliser spread operator
+        for (let j = 0; j < chunk.length; j++) {
+          binaryString += String.fromCharCode(chunk[j]);
+        }
+      }
+      const base64 = btoa(binaryString);
 
-      console.log(`Upload ${file.name} (${type}) via API...`);
-
+      // Envoyer le fichier à l'API serveur
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          file: base64,
+          fileName: file.name,
+          fileType: type,
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Erreur inconnue' }));
-        throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de l\'upload');
       }
 
       const data = await response.json();
-      console.log(`Upload réussi ${file.name}:`, data.url);
       return data.url;
     } catch (error: any) {
-      console.error(`Erreur upload ${file.name}:`, error);
-      throw new Error(`Erreur lors de l'upload de "${file.name}": ${error.message || 'Erreur inconnue'}`);
+      console.error('Error uploading to Supabase:', error);
+      throw new Error(`Erreur lors de l'upload: ${error.message}`);
     }
   };
 
@@ -154,7 +208,11 @@ export default function CreateCourse() {
     const loadingToast = showToast.loading('Création du cours en cours...');
 
     try {
+      // ========== COMMENTAIRE FIREBASE (COMMENTÉ) ==========
       // Upload des fichiers vers Firebase Storage
+      
+      // ========== NOUVEAU COMMENTAIRE ==========
+      // Upload des fichiers vers Supabase Storage
       const uploadedPdfs: string[] = [];
       const uploadedVideos: string[] = [];
 
@@ -162,12 +220,11 @@ export default function CreateCourse() {
       for (let i = 0; i < pdfFiles.length; i++) {
         const pdfFile = pdfFiles[i];
         try {
-          showToast.loading(`Upload PDF ${i + 1}/${pdfFiles.length}: ${pdfFile.file.name}...`);
           const url = await uploadFile(pdfFile.file, 'pdf');
           uploadedPdfs.push(url);
-        } catch (error: any) {
-          console.error(`Erreur upload PDF ${pdfFile.file.name}:`, error);
-          throw new Error(`Erreur lors de l'upload du PDF "${pdfFile.file.name}": ${error.message || 'Erreur inconnue'}`);
+          showToast.loading(`Upload PDF ${i + 1}/${pdfFiles.length}...`);
+        } catch (error) {
+          throw new Error(`Erreur lors de l'upload du PDF: ${pdfFile.file.name}`);
         }
       }
 
@@ -175,12 +232,11 @@ export default function CreateCourse() {
       for (let i = 0; i < videoFiles.length; i++) {
         const videoFile = videoFiles[i];
         try {
-          showToast.loading(`Upload Vidéo ${i + 1}/${videoFiles.length}: ${videoFile.file.name}...`);
           const url = await uploadFile(videoFile.file, 'video');
           uploadedVideos.push(url);
-        } catch (error: any) {
-          console.error(`Erreur upload vidéo ${videoFile.file.name}:`, error);
-          throw new Error(`Erreur lors de l'upload de la vidéo "${videoFile.file.name}": ${error.message || 'Erreur inconnue'}`);
+          showToast.loading(`Upload Vidéo ${i + 1}/${videoFiles.length}...`);
+        } catch (error) {
+          throw new Error(`Erreur lors de l'upload de la vidéo: ${videoFile.file.name}`);
         }
       }
 

@@ -10,26 +10,17 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let app: FirebaseApp | undefined;
-let storage: FirebaseStorage | undefined;
+let app: FirebaseApp;
+let storage: FirebaseStorage;
 
 if (typeof window !== 'undefined') {
   // Initialiser Firebase seulement côté client
-  try {
-    // Vérifier que les variables d'environnement sont définies
-    if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.storageBucket) {
-      console.warn('⚠️ Firebase n\'est pas configuré. Vérifiez vos variables d\'environnement NEXT_PUBLIC_FIREBASE_*');
-    } else {
-      if (!getApps().length) {
-        app = initializeApp(firebaseConfig);
-      } else {
-        app = getApps()[0];
-      }
-      storage = getStorage(app);
-    }
-  } catch (error) {
-    console.error('❌ Erreur lors de l\'initialisation de Firebase:', error);
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApps()[0];
   }
+  storage = getStorage(app);
 }
 
 export { storage };

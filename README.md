@@ -61,20 +61,26 @@ SUPER_ADMIN_PASSWORD=admin123
 SUPER_ADMIN_FIRSTNAME=Super
 SUPER_ADMIN_LASTNAME=Admin
 
-# Firebase Configuration (pour le stockage des fichiers)
-NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+# ========== FIREBASE (COMMENTÉ - REMPLACÉ PAR SUPABASE) ==========
+# NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+# NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+# NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+# NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+# NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+# NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+
+# ========== SUPABASE (pour le stockage des fichiers) ==========
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-**Note pour Firebase** : 
-- Créez un projet Firebase sur [Firebase Console](https://console.firebase.google.com/)
-- Activez Firebase Storage
-- Configurez les règles de sécurité pour permettre l'upload aux utilisateurs authentifiés
-- Copiez les valeurs de configuration dans votre `.env.local`
+**Note pour Supabase** : 
+- Créez un projet Supabase sur [Supabase](https://supabase.com)
+- Allez dans Storage et créez un bucket nommé `education`
+- Configurez le bucket comme "Public bucket" pour permettre l'accès public aux fichiers
+- Configurez les règles de sécurité du bucket pour permettre l'upload aux utilisateurs authentifiés
+- Copiez l'URL du projet et les clés (anon key et service role key) dans votre `.env.local`
 
 3. **Initialiser les rôles** :
 ```bash
