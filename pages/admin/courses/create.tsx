@@ -303,7 +303,7 @@ export default function CreateCourse() {
           }} 
         />
         <div className="flex">
-          <Sidebar items={sidebarItems} userPermissions={user?.role?.permissions || []} />
+          <Sidebar items={sidebarItems} userPermissions={(user?.role?.permissions || []) as any} />
           <main className="flex-1 p-8">
             <div className="max-w-4xl mx-auto">
               <div className="mb-8">
