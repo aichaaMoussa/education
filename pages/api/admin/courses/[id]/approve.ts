@@ -34,7 +34,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { action } = req.body; // 'approve' ou 'reject'
 
     // Récupérer l'utilisateur pour obtenir son ID
-    const User = (await import('../../../../models/User')).default;
+    const User = (await import('../../../../../models/User')).default;
     const user = await User.findOne({ email: session.user.email });
     
     if (!user) {
