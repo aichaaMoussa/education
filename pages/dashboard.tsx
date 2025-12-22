@@ -3,7 +3,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useSession, signOut } from 'next-auth/react';
 import { FiBook, FiUsers, FiFileText, FiTrendingUp, FiBarChart2, FiPlus, FiShoppingCart, FiCheckCircle } from 'react-icons/fi';
-import { FaGraduationCap, FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
+import { FaGraduationCap, FaChalkboardTeacher, FaUserGraduate, FaBookOpen } from 'react-icons/fa';
+import { HiOutlineCollection } from 'react-icons/hi';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import Card from '../components/ui/Card';
@@ -93,11 +94,11 @@ export default function Dashboard() {
     sidebarItems.push(
       {
         label: 'Gestion de Formation',
-        icon: <FiBook className="w-5 h-5" />,
+        icon: <FaBookOpen className="w-5 h-5" />,
         permission: PERMISSIONS.COURSE_READ,
         children: [
           { label: 'Formations à Valider', href: '/admin/courses/approve', icon: <FiCheckCircle className="w-4 h-4" /> },
-          { label: 'Toutes les Formations', href: '/admin/courses/all', icon: <FiBook className="w-4 h-4" /> },
+          { label: 'Toutes les Formations', href: '/admin/courses/all', icon: <HiOutlineCollection className="w-4 h-4" /> },
         ]
       },
       { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FaChalkboardTeacher className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },

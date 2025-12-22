@@ -12,7 +12,29 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   if (req.method === 'GET') {
     try {
-      const users = await User.find()
+      const { role } = req.query;
+      
+      let query: any = {};
+      
+      // Si un rôle est spécifié dans la query, filtrer par ce rôle
+      if (role && typeof role === 'string') {
+        const roleDoc = await Role.findOne({ 
+          $or: [
+            { name: role },
+            { name: role === 'formateur' ? 'instructor' : role === 'instructor' ? 'formateur' : role },
+            { name: role === 'apprenant' ? 'student' : role === 'student' ? 'apprenant' : role }
+          ]
+        });
+        
+        if (roleDoc) {
+          query.role = roleDoc._id;
+        } else {
+          // Si le rôle n'existe pas, retourner un tableau vide
+          return res.status(200).json([]);
+        }
+      }
+      
+      const users = await User.find(query)
         .select('-password -__v')
         .populate('role', 'name permissions')
         .sort({ createdAt: -1 });

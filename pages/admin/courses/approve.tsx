@@ -3,6 +3,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { FiCheckCircle, FiXCircle, FiEye, FiFileText, FiVideo, FiHelpCircle, FiBarChart2, FiBook } from 'react-icons/fi';
+import { FaBookOpen } from 'react-icons/fa';
+import { HiOutlineCollection } from 'react-icons/hi';
 import { FaGraduationCap, FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
 import Header from '../../../components/layout/Header';
 import Sidebar from '../../../components/layout/Sidebar';
@@ -127,11 +129,11 @@ export default function ApproveCourses() {
     { label: 'Dashboard', href: '/dashboard', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_VIEW },
     {
       label: 'Gestion de Formation',
-      icon: <FiBook className="w-5 h-5" />,
+      icon: <FaBookOpen className="w-5 h-5" />,
       permission: PERMISSIONS.COURSE_READ,
       children: [
         { label: 'Formations à Valider', href: '/admin/courses/approve', icon: <FiCheckCircle className="w-4 h-4" /> },
-        { label: 'Toutes les Formations', href: '/admin/courses/all', icon: <FiBook className="w-4 h-4" /> },
+        { label: 'Toutes les Formations', href: '/admin/courses/all', icon: <HiOutlineCollection className="w-4 h-4" /> },
       ]
     },
     { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FaChalkboardTeacher className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },

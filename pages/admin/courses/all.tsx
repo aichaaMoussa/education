@@ -4,8 +4,11 @@ import { useRouter } from 'next/router';
 import { useSession, signOut } from 'next-auth/react';
 import { 
   FiBook, FiCheckCircle, FiXCircle, FiEye, FiEdit, FiTrash2,
-  FiSearch, FiFilter, FiFileText, FiVideo, FiHelpCircle
+  FiSearch, FiFilter, FiFileText, FiVideo, FiHelpCircle,
+  FiBarChart2, FiUsers, FiShield
 } from 'react-icons/fi';
+import { FaBookOpen, FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
+import { HiOutlineCollection } from 'react-icons/hi';
 import Header from '../../../components/layout/Header';
 import Sidebar from '../../../components/layout/Sidebar';
 import Card from '../../../components/ui/Card';
@@ -108,20 +111,20 @@ export default function AllCourses() {
   const user = session?.user;
 
   const sidebarItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: <FiBook className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_VIEW },
+    { label: 'Dashboard', href: '/dashboard', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_VIEW },
     {
       label: 'Gestion de Formation',
-      icon: <FiBook className="w-5 h-5" />,
+      icon: <FaBookOpen className="w-5 h-5" />,
       permission: PERMISSIONS.COURSE_READ,
       children: [
-        { label: 'Formations à Valider', href: '/admin/courses/approve', icon: <FiCheckCircle className="w-5 h-5" /> },
-        { label: 'Toutes les Formations', href: '/admin/courses/all', icon: <FiBook className="w-5 h-5" /> },
+        { label: 'Formations à Valider', href: '/admin/courses/approve', icon: <FiCheckCircle className="w-4 h-4" /> },
+        { label: 'Toutes les Formations', href: '/admin/courses/all', icon: <HiOutlineCollection className="w-4 h-4" /> },
       ],
     },
-    { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FiBook className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
-    { label: 'Gestion Apprenants', href: '/admin/apprenants', icon: <FiBook className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
-    { label: 'Statistiques', href: '/admin/statistics', icon: <FiBook className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_ADMIN },
-    { label: 'Gestion Rôles', href: '/admin/roles', icon: <FiBook className="w-5 h-5" />, permission: PERMISSIONS.ROLE_READ },
+    { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FaChalkboardTeacher className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
+    { label: 'Gestion Apprenants', href: '/admin/apprenants', icon: <FaUserGraduate className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
+    { label: 'Statistiques', href: '/admin/statistics', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_ADMIN },
+    { label: 'Gestion Rôles', href: '/admin/roles', icon: <FiShield className="w-5 h-5" />, permission: PERMISSIONS.ROLE_READ },
   ];
 
   const filteredCourses = courses.filter(course => {
