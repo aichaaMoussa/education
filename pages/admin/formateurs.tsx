@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { FiUserPlus, FiEdit2, FiTrash2, FiCheckCircle, FiXCircle, FiMail, FiUser } from 'react-icons/fi';
-import { FaChalkboardTeacher } from 'react-icons/fa';
+import { useSession } from 'next-auth/react';
+import { FiUserPlus, FiEdit2, FiTrash2, FiCheckCircle, FiXCircle, FiMail, FiUser, FiBarChart2, FiBook } from 'react-icons/fi';
+import { FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
 import Header from '../../components/layout/Header';
 import Sidebar from '../../components/layout/Sidebar';
 import Card from '../../components/ui/Card';
@@ -29,7 +30,7 @@ interface Formateur {
 
 export default function FormateursManagement() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const { data: session } = useSession();
   const [formateurs, setFormateurs] = useState<Formateur[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -44,19 +45,14 @@ export default function FormateursManagement() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
+    if (session?.user) {
+      fetchFormateurs();
     }
-    fetchFormateurs();
-  }, []);
+  }, [session]);
 
   const fetchFormateurs = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/users', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch('/api/admin/users');
       if (response.ok) {
         const data = await response.json();
         // Filtrer seulement les formateurs
@@ -115,11 +111,8 @@ export default function FormateursManagement() {
     const loadingToast = showToast.loading(isEditMode ? 'Mise à jour...' : 'Création...');
 
     try {
-      const token = localStorage.getItem('token');
       // Récupérer le rôle formateur
-      const rolesResponse = await fetch('/api/admin/roles', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const rolesResponse = await fetch('/api/admin/roles');
       const roles = await rolesResponse.json();
       const formateurRole = roles.find((r: any) => r.name === 'formateur' || r.name === 'instructor');
 
@@ -145,7 +138,6 @@ export default function FormateursManagement() {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(submitData),
       });
@@ -175,10 +167,8 @@ export default function FormateursManagement() {
     }
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/users/${formateurId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
@@ -193,18 +183,23 @@ export default function FormateursManagement() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/login');
-  };
+  const user = session?.user;
 
-  const sidebarItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: <FiUser className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_VIEW },
+  const sidebarItems: any[] = [
+    { label: 'Dashboard', href: '/dashboard', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_VIEW },
+    {
+      label: 'Gestion de Formation',
+      icon: <FiBook className="w-5 h-5" />,
+      permission: PERMISSIONS.COURSE_READ,
+      children: [
+        { label: 'Formations à Valider', href: '/admin/courses/approve', icon: <FiCheckCircle className="w-4 h-4" /> },
+        { label: 'Toutes les Formations', href: '/admin/courses/all', icon: <FiBook className="w-4 h-4" /> },
+      ]
+    },
     { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FaChalkboardTeacher className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
-    { label: 'Gestion Apprenants', href: '/admin/apprenants', icon: <FiUser className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
-    { label: 'Valider Formations', href: '/admin/courses/approve', icon: <FiCheckCircle className="w-5 h-5" />, permission: PERMISSIONS.COURSE_READ },
-    { label: 'Statistiques', href: '/admin/statistics', icon: <FiUser className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_ADMIN },
+    { label: 'Gestion Apprenants', href: '/admin/apprenants', icon: <FaUserGraduate className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
+    { label: 'Statistiques', href: '/admin/statistics', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_ADMIN },
+    { label: 'Gestion Rôles', href: '/admin/roles', icon: <FiUser className="w-5 h-5" />, permission: PERMISSIONS.ROLE_READ },
   ];
 
   return (
@@ -213,9 +208,20 @@ export default function FormateursManagement() {
         <title>Gestion des Formateurs - Admin</title>
       </Head>
       <div className="min-h-screen bg-gray-50">
-        <Header user={user} onLogout={handleLogout} />
+        <Header 
+          user={user ? {
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            role: { name: user.role?.name || '' }
+          } : undefined} 
+          onLogout={async () => {
+            const { signOut } = await import('next-auth/react');
+            await signOut({ redirect: false });
+            router.push('/login');
+          }} 
+        />
         <div className="flex">
-          <Sidebar items={sidebarItems} userPermissions={user?.role?.permissions || []} />
+          <Sidebar items={sidebarItems} userPermissions={(user?.role?.permissions || []) as any} />
           <main className="flex-1 p-8">
             <div className="max-w-7xl mx-auto">
               <div className="flex justify-between items-center mb-8">

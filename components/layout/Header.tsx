@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
             </Link>
           </div>
           
-          <nav className="hidden md:flex items-center space-x-6">
+          {/* <nav className="hidden md:flex items-center space-x-6">
             <Link href="/courses" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors">
               <FiBook className="w-4 h-4" />
               <span>Formations</span>
@@ -56,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
                 )}
               </>
             )}
-          </nav>
+          </nav> */}
 
           <div className="flex items-center space-x-4">
             {user ? (
