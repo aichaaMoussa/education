@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { FiCheckCircle, FiXCircle, FiEye, FiFileText, FiVideo, FiHelpCircle } from 'react-icons/fi';
-import { FaGraduationCap } from 'react-icons/fa';
+import { useSession } from 'next-auth/react';
+import { FiCheckCircle, FiXCircle, FiEye, FiFileText, FiVideo, FiHelpCircle, FiBarChart2, FiBook } from 'react-icons/fi';
+import { FaGraduationCap, FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
 import Header from '../../../components/layout/Header';
 import Sidebar from '../../../components/layout/Sidebar';
 import Card from '../../../components/ui/Card';
@@ -35,24 +36,19 @@ interface Course {
 
 export default function ApproveCourses() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const { data: session } = useSession();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
+    if (session?.user) {
+      fetchCourses();
     }
-    fetchCourses();
-  }, []);
+  }, [session]);
 
   const fetchCourses = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/courses/pending', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch('/api/admin/courses/pending');
       if (response.ok) {
         const data = await response.json();
         setCourses(data);
@@ -73,12 +69,10 @@ export default function ApproveCourses() {
     setLoading(true);
     const loadingToast = showToast.loading('Approbation en cours...');
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/courses/${courseId}/approve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ action: 'approve' }),
       });
@@ -105,12 +99,10 @@ export default function ApproveCourses() {
     setLoading(true);
     const loadingToast = showToast.loading('Rejet en cours...');
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/courses/${courseId}/approve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ action: 'reject' }),
       });
@@ -129,18 +121,23 @@ export default function ApproveCourses() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/login');
-  };
+  const user = session?.user;
 
-  const sidebarItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: <FiCheckCircle className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_VIEW },
-    { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FiCheckCircle className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
-    { label: 'Gestion Apprenants', href: '/admin/apprenants', icon: <FiCheckCircle className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
-    { label: 'Valider Formations', href: '/admin/courses/approve', icon: <FiCheckCircle className="w-5 h-5" />, permission: PERMISSIONS.COURSE_READ },
-    { label: 'Statistiques', href: '/admin/statistics', icon: <FiCheckCircle className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_ADMIN },
+  const sidebarItems: any[] = [
+    { label: 'Dashboard', href: '/dashboard', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_VIEW },
+    {
+      label: 'Gestion de Formation',
+      icon: <FiBook className="w-5 h-5" />,
+      permission: PERMISSIONS.COURSE_READ,
+      children: [
+        { label: 'Formations à Valider', href: '/admin/courses/approve', icon: <FiCheckCircle className="w-4 h-4" /> },
+        { label: 'Toutes les Formations', href: '/admin/courses/all', icon: <FiBook className="w-4 h-4" /> },
+      ]
+    },
+    { label: 'Gestion Formateurs', href: '/admin/formateurs', icon: <FaChalkboardTeacher className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
+    { label: 'Gestion Apprenants', href: '/admin/apprenants', icon: <FaUserGraduate className="w-5 h-5" />, permission: PERMISSIONS.USER_READ },
+    { label: 'Statistiques', href: '/admin/statistics', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_ADMIN },
+    { label: 'Gestion Rôles', href: '/admin/roles', icon: <FiCheckCircle className="w-5 h-5" />, permission: PERMISSIONS.ROLE_READ },
   ];
 
   return (
@@ -149,9 +146,20 @@ export default function ApproveCourses() {
         <title>Validation des Formations - Admin</title>
       </Head>
       <div className="min-h-screen bg-gray-50">
-        <Header user={user} onLogout={handleLogout} />
+        <Header 
+          user={user ? {
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            role: { name: user.role?.name || '' }
+          } : undefined} 
+          onLogout={async () => {
+            const { signOut } = await import('next-auth/react');
+            await signOut({ redirect: false });
+            router.push('/login');
+          }} 
+        />
         <div className="flex">
-          <Sidebar items={sidebarItems} userPermissions={user?.role?.permissions || []} />
+          <Sidebar items={sidebarItems} userPermissions={(user?.role?.permissions || []) as any} />
           <main className="flex-1 p-8">
             <div className="max-w-7xl mx-auto">
               <div className="mb-8">
