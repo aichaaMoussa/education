@@ -10,6 +10,7 @@ import Header from '../../../components/layout/Header';
 import Sidebar from '../../../components/layout/Sidebar';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
+import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import ProtectedRoute from '../../../components/protected/ProtectedRoute';
 import { PERMISSIONS } from '../../../lib/permissions';
 import { showToast } from '../../../lib/toast';
@@ -41,6 +42,15 @@ export default function ApproveCourses() {
   const { data: session } = useSession();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    type: 'approve' | 'reject' | null;
+    courseId: string | null;
+  }>({
+    isOpen: false,
+    type: null,
+    courseId: null,
+  });
 
   useEffect(() => {
     if (session?.user) {
@@ -63,64 +73,85 @@ export default function ApproveCourses() {
     }
   };
 
-  const handleApprove = async (courseId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir approuver cette formation ?')) {
-      return;
-    }
+  const handleApproveClick = (courseId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      type: 'approve',
+      courseId,
+    });
+  };
+
+  const handleRejectClick = (courseId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      type: 'reject',
+      courseId,
+    });
+  };
+
+  const handleConfirm = async () => {
+    if (!confirmDialog.courseId || !confirmDialog.type) return;
 
     setLoading(true);
-    const loadingToast = showToast.loading('Approbation en cours...');
+    setConfirmDialog({ isOpen: false, type: null, courseId: null });
+
+    const action = confirmDialog.type === 'approve' ? 'approve' : 'reject';
+    const loadingMessage = confirmDialog.type === 'approve' ? 'Approbation en cours...' : 'Rejet en cours...';
+    const successMessage = confirmDialog.type === 'approve' ? 'Formation approuvée avec succès' : 'Formation rejetée';
+
+    showToast.loading(loadingMessage);
+
     try {
-      const response = await fetch(`/api/admin/courses/${courseId}/approve`, {
+      const response = await fetch(`/api/admin/courses/${confirmDialog.courseId}/approve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ action: 'approve' }),
+        body: JSON.stringify({ action }),
       });
 
       if (response.ok) {
-        showToast.success('Formation approuvée avec succès');
+        showToast.success(successMessage);
         await fetchCourses();
       } else {
         const data = await response.json();
-        showToast.error(data.message || 'Erreur lors de l\'approbation');
+        showToast.error(data.message || `Erreur lors de l'${action === 'approve' ? 'approbation' : 'rejet'}`);
       }
     } catch (error) {
-      showToast.error('Erreur lors de l\'approbation');
+      showToast.error(`Erreur lors de l'${action === 'approve' ? 'approbation' : 'rejet'}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleReject = async (courseId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir rejeter cette formation ?')) {
-      return;
+  const handleCloseDialog = () => {
+    if (!loading) {
+      setConfirmDialog({ isOpen: false, type: null, courseId: null });
     }
+  };
 
-    setLoading(true);
-    const loadingToast = showToast.loading('Rejet en cours...');
-    try {
-      const response = await fetch(`/api/admin/courses/${courseId}/approve`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action: 'reject' }),
-      });
-
-      if (response.ok) {
-        showToast.success('Formation rejetée');
-        await fetchCourses();
-      } else {
-        const data = await response.json();
-        showToast.error(data.message || 'Erreur lors du rejet');
-      }
-    } catch (error) {
-      showToast.error('Erreur lors du rejet');
-    } finally {
-      setLoading(false);
+  const getConfirmDialogProps = () => {
+    if (confirmDialog.type === 'approve') {
+      return {
+        title: 'Approuver la formation',
+        message: 'Êtes-vous sûr de vouloir approuver cette formation ? Elle sera alors visible par tous les apprenants.',
+        confirmText: 'Approuver',
+        variant: 'success' as const,
+      };
+    } else if (confirmDialog.type === 'reject') {
+      return {
+        title: 'Rejeter la formation',
+        message: 'Êtes-vous sûr de vouloir rejeter cette formation ? Cette action peut être annulée plus tard.',
+        confirmText: 'Rejeter',
+        variant: 'danger' as const,
+      };
     }
+    return {
+      title: '',
+      message: '',
+      confirmText: 'Confirmer',
+      variant: 'warning' as const,
+    };
   };
 
   const user = session?.user;
@@ -141,6 +172,12 @@ export default function ApproveCourses() {
     { label: 'Statistiques', href: '/admin/statistics', icon: <FiBarChart2 className="w-5 h-5" />, permission: PERMISSIONS.DASHBOARD_ADMIN },
     { label: 'Gestion Rôles', href: '/admin/roles', icon: <FiCheckCircle className="w-5 h-5" />, permission: PERMISSIONS.ROLE_READ },
   ];
+
+  // Vérifier que l'utilisateur est un admin
+  if (user && user.role?.name !== 'admin') {
+    router.push('/dashboard');
+    return null;
+  }
 
   return (
     <ProtectedRoute requiredPermission={PERMISSIONS.COURSE_READ}>
@@ -174,80 +211,98 @@ export default function ApproveCourses() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {courses.map((course) => (
-                  <Card key={course._id} hover className="border-l-4 border-l-yellow-500">
-                    <div className="mb-4">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{course.title}</h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">{course.description}</p>
+                  <Card key={course._id} hover className="border-l-4 border-l-yellow-500 flex flex-col h-full">
+                    {/* Header */}
+                    <div className="mb-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-xl font-bold text-gray-900 flex-1 leading-tight pr-2">{course.title}</h3>
+                        <span className="px-2.5 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full whitespace-nowrap">
+                          En attente
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">{course.description}</p>
                     </div>
                     
-                    <div className="mb-4 space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Formateur:</span>
-                        <span className="font-medium">{course.instructor?.firstName} {course.instructor?.lastName}</span>
+                    {/* Informations principales */}
+                    <div className="mb-6 space-y-4">
+                      {/* Formateur */}
+                      <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span className="text-sm text-gray-500">Formateur</span>
+                        <span className="text-sm font-semibold text-gray-900">{course.instructor?.firstName} {course.instructor?.lastName}</span>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Prix:</span>
-                        <span className="font-bold text-blue-600">{course.price} MRU</span>
+
+                      {/* Prix */}
+                      <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span className="text-sm text-gray-500">Prix</span>
+                        <span className="text-lg font-bold text-blue-600">{course.price} MRU</span>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Catégorie:</span>
-                        <span className="font-medium">{course.category}</span>
+
+                      {/* Catégorie */}
+                      <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span className="text-sm text-gray-500">Catégorie</span>
+                        <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">{course.category}</span>
                       </div>
                     </div>
 
+                    {/* Ressources */}
                     {course.resources && (
-                      <div className="mb-4 flex items-center space-x-4 text-sm text-gray-600">
-                        {course.resources.pdfs?.length > 0 && (
-                          <div className="flex items-center space-x-1">
-                            <FiFileText className="w-4 h-4" />
-                            <span>{course.resources.pdfs.length} PDF</span>
-                          </div>
-                        )}
-                        {course.resources.videos?.length > 0 && (
-                          <div className="flex items-center space-x-1">
-                            <FiVideo className="w-4 h-4" />
-                            <span>{course.resources.videos.length} Vidéos</span>
-                          </div>
-                        )}
-                        {course.resources.quizzes?.length > 0 && (
-                          <div className="flex items-center space-x-1">
-                            <FiHelpCircle className="w-4 h-4" />
-                            <span>{course.resources.quizzes.length} Quiz</span>
-                          </div>
-                        )}
+                      <div className="mb-6 pb-6 border-b border-gray-200">
+                        <div className="flex flex-wrap gap-3">
+                          {course.resources.pdfs?.length > 0 && (
+                            <div className="flex items-center space-x-2 px-3 py-1.5 bg-red-50 rounded-lg">
+                              <FiFileText className="w-4 h-4 text-red-600" />
+                              <span className="text-sm font-medium text-gray-700">{course.resources.pdfs.length} PDF</span>
+                            </div>
+                          )}
+                          {course.resources.videos?.length > 0 && (
+                            <div className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 rounded-lg">
+                              <FiVideo className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm font-medium text-gray-700">{course.resources.videos.length} Vidéos</span>
+                            </div>
+                          )}
+                          {course.resources.quizzes?.length > 0 && (
+                            <div className="flex items-center space-x-2 px-3 py-1.5 bg-purple-50 rounded-lg">
+                              <FiHelpCircle className="w-4 h-4 text-purple-600" />
+                              <span className="text-sm font-medium text-gray-700">{course.resources.quizzes.length} Quiz</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
 
-                    <div className="flex space-x-2">
+                    {/* Actions - Boutons */}
+                    <div className="mt-auto pt-4 space-y-3">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => router.push(`/admin/courses/${course._id}`)}
-                        className="flex items-center justify-center space-x-1"
+                        className="w-full flex items-center justify-center space-x-2 border-2 hover:bg-gray-50"
                       >
                         <FiEye className="w-4 h-4" />
-                        <span>Voir</span>
+                        <span>Voir les détails</span>
                       </Button>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => handleApprove(course._id)}
-                        disabled={loading || course.isApproved}
-                        className="flex-1 flex items-center justify-center space-x-1"
-                      >
-                        <FiCheckCircle className="w-4 h-4" />
-                        <span>Approuver</span>
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleReject(course._id)}
-                        disabled={loading}
-                        className="flex-1 flex items-center justify-center space-x-1"
-                      >
-                        <FiXCircle className="w-4 h-4" />
-                        <span>Rejeter</span>
-                      </Button>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handleApproveClick(course._id)}
+                          disabled={loading || course.isApproved}
+                          className="flex items-center justify-center space-x-2"
+                        >
+                          <FiCheckCircle className="w-4 h-4" />
+                          <span>Approuver</span>
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleRejectClick(course._id)}
+                          disabled={loading}
+                          className="flex items-center justify-center space-x-2"
+                        >
+                          <FiXCircle className="w-4 h-4" />
+                          <span>Rejeter</span>
+                        </Button>
+                      </div>
                     </div>
                   </Card>
                 ))}
@@ -262,6 +317,15 @@ export default function ApproveCourses() {
             </div>
           </main>
         </div>
+
+        {/* Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={handleCloseDialog}
+          onConfirm={handleConfirm}
+          isLoading={loading}
+          {...getConfirmDialogProps()}
+        />
       </div>
     </ProtectedRoute>
   );

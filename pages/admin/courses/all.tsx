@@ -13,6 +13,7 @@ import Header from '../../../components/layout/Header';
 import Sidebar from '../../../components/layout/Sidebar';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
+import ConfirmDialog from '../../../components/ui/ConfirmDialog';
 import ProtectedRoute from '../../../components/protected/ProtectedRoute';
 import { PERMISSIONS } from '../../../lib/permissions';
 import { showToast } from '../../../lib/toast';
@@ -46,6 +47,14 @@ export default function AllCourses() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'approved' | 'pending'>('all');
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    courseId: string | null;
+  }>({
+    isOpen: false,
+    courseId: null,
+  });
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (session?.user) {
@@ -88,12 +97,21 @@ export default function AllCourses() {
     }
   };
 
-  const handleDelete = async (courseId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
-      return;
-    }
+  const handleDeleteClick = (courseId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      courseId,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!confirmDialog.courseId) return;
+
+    setDeleting(true);
+    setConfirmDialog({ isOpen: false, courseId: null });
+
     try {
-      const response = await fetch(`/api/admin/courses/${courseId}`, {
+      const response = await fetch(`/api/admin/courses/${confirmDialog.courseId}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -105,6 +123,14 @@ export default function AllCourses() {
       }
     } catch (error) {
       showToast.error('Erreur lors de la suppression');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    if (!deleting) {
+      setConfirmDialog({ isOpen: false, courseId: null });
     }
   };
 
@@ -137,6 +163,12 @@ export default function AllCourses() {
   });
 
   if (!user) {
+    return null;
+  }
+
+  // Vérifier que l'utilisateur est un admin
+  if (user && user.role?.name !== 'admin') {
+    router.push('/dashboard');
     return null;
   }
 
@@ -288,7 +320,7 @@ export default function AllCourses() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(course._id)}
+                            onClick={() => handleDeleteClick(course._id)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <FiTrash2 className="w-4 h-4" />
@@ -302,6 +334,19 @@ export default function AllCourses() {
             </div>
           </main>
         </div>
+
+        {/* Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={handleCloseDialog}
+          onConfirm={handleDeleteConfirm}
+          isLoading={deleting}
+          title="Supprimer la formation"
+          message="Êtes-vous sûr de vouloir supprimer cette formation ? Cette action est irréversible et toutes les données associées seront définitivement supprimées."
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          variant="danger"
+        />
       </div>
     </ProtectedRoute>
   );

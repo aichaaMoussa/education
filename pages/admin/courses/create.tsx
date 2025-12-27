@@ -27,6 +27,8 @@ interface UploadedFile {
   url?: string;
   uploading: boolean;
   progress: number;
+  error?: string;
+  id: string; // Identifiant unique pour chaque fichier
 }
 
 const COURSE_CATEGORIES = [
@@ -69,7 +71,8 @@ export default function CreateCourse() {
     const newPdfs = acceptedFiles.map(file => ({
       file,
       uploading: false,
-      progress: 0
+      progress: 0,
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     }));
     setPdfFiles(prev => [...prev, ...newPdfs]);
   }, []);
@@ -87,7 +90,8 @@ export default function CreateCourse() {
     const newVideos = acceptedFiles.map(file => ({
       file,
       uploading: false,
-      progress: 0
+      progress: 0,
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     }));
     setVideoFiles(prev => [...prev, ...newVideos]);
   }, []);
@@ -147,23 +151,40 @@ export default function CreateCourse() {
 
   // ========== FONCTION UPLOAD SUPABASE ==========
   // Upload via API serveur pour bypasser RLS avec la service role key
-  const uploadFile = async (file: File, type: 'pdf' | 'video'): Promise<string> => {
+  const uploadFile = async (
+    file: File, 
+    type: 'pdf' | 'video',
+    fileId: string,
+    setProgress: (id: string, progress: number) => void,
+    setError: (id: string, error: string) => void
+  ): Promise<string> => {
     try {
+      setProgress(fileId, 10); // 10% - Début de la conversion
+      
       // Convertir le fichier en base64 pour l'envoi via API (méthode optimisée pour gros fichiers)
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
       
+      setProgress(fileId, 30); // 30% - Conversion en cours
+      
       // Convertir par chunks pour éviter "Maximum call stack size exceeded"
       let binaryString = '';
       const chunkSize = 8192; // Traiter par chunks de 8KB
+      const totalChunks = Math.ceil(uint8Array.length / chunkSize);
+      
       for (let i = 0; i < uint8Array.length; i += chunkSize) {
         const chunk = uint8Array.slice(i, Math.min(i + chunkSize, uint8Array.length));
         // Convertir chunk par chunk sans utiliser spread operator
         for (let j = 0; j < chunk.length; j++) {
           binaryString += String.fromCharCode(chunk[j]);
         }
+        // Mise à jour de la progression pendant la conversion
+        const chunkProgress = 30 + Math.floor((i / uint8Array.length) * 20);
+        setProgress(fileId, chunkProgress);
       }
+      
       const base64 = btoa(binaryString);
+      setProgress(fileId, 50); // 50% - Conversion terminée, début de l'envoi
 
       // Envoyer le fichier à l'API serveur
       const response = await fetch('/api/upload', {
@@ -178,18 +199,41 @@ export default function CreateCourse() {
         }),
       });
 
+      setProgress(fileId, 90); // 90% - Réponse reçue
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erreur lors de l\'upload');
       }
 
       const data = await response.json();
+      setProgress(fileId, 100); // 100% - Terminé
       return data.url;
     } catch (error: any) {
       console.error('Error uploading to Supabase:', error);
-      throw new Error(`Erreur lors de l'upload: ${error.message}`);
+      const errorMessage = error.message || 'Erreur lors de l\'upload';
+      setError(fileId, errorMessage);
+      throw error;
     }
   };
+
+  // Fonction pour mettre à jour la progression d'un fichier
+  const updatePdfProgress = useCallback((id: string, progress: number) => {
+    setPdfFiles(prev => prev.map(f => f.id === id ? { ...f, progress, uploading: progress < 100 } : f));
+  }, []);
+
+  const updateVideoProgress = useCallback((id: string, progress: number) => {
+    setVideoFiles(prev => prev.map(f => f.id === id ? { ...f, progress, uploading: progress < 100 } : f));
+  }, []);
+
+  // Fonction pour définir une erreur sur un fichier
+  const setPdfError = useCallback((id: string, error: string) => {
+    setPdfFiles(prev => prev.map(f => f.id === id ? { ...f, error, uploading: false } : f));
+  }, []);
+
+  const setVideoError = useCallback((id: string, error: string) => {
+    setVideoFiles(prev => prev.map(f => f.id === id ? { ...f, error, uploading: false } : f));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,39 +249,79 @@ export default function CreateCourse() {
     }
 
     setLoading(true);
-    const loadingToast = showToast.loading('Création du cours en cours...');
+    const loadingToast = showToast.loading('Upload des fichiers en cours...');
 
     try {
-      // ========== COMMENTAIRE FIREBASE (COMMENTÉ) ==========
-      // Upload des fichiers vers Firebase Storage
-      
-      // ========== NOUVEAU COMMENTAIRE ==========
-      // Upload des fichiers vers Supabase Storage
+      // ========== UPLOAD PARALLÈLE DES FICHIERS ==========
+      // Upload des fichiers vers Supabase Storage en parallèle pour plus de rapidité
       const uploadedPdfs: string[] = [];
       const uploadedVideos: string[] = [];
+      const uploadErrors: string[] = [];
 
-      // Upload PDFs
-      for (let i = 0; i < pdfFiles.length; i++) {
-        const pdfFile = pdfFiles[i];
+      // Marquer tous les fichiers comme en cours d'upload
+      setPdfFiles(prev => prev.map(f => ({ ...f, uploading: true, progress: 0, error: undefined })));
+      setVideoFiles(prev => prev.map(f => ({ ...f, uploading: true, progress: 0, error: undefined })));
+
+      // Créer toutes les promesses d'upload en parallèle
+      const pdfUploadPromises = pdfFiles.map(async (pdfFile) => {
         try {
-          const url = await uploadFile(pdfFile.file, 'pdf');
+          const url = await uploadFile(
+            pdfFile.file, 
+            'pdf', 
+            pdfFile.id,
+            updatePdfProgress,
+            setPdfError
+          );
           uploadedPdfs.push(url);
-          showToast.loading(`Upload PDF ${i + 1}/${pdfFiles.length}...`);
-        } catch (error) {
-          throw new Error(`Erreur lors de l'upload du PDF: ${pdfFile.file.name}`);
+          return { success: true, fileName: pdfFile.file.name };
+        } catch (error: any) {
+          const errorMsg = `Erreur lors de l'upload de ${pdfFile.file.name}: ${error.message}`;
+          uploadErrors.push(errorMsg);
+          return { success: false, fileName: pdfFile.file.name, error: errorMsg };
         }
+      });
+
+      const videoUploadPromises = videoFiles.map(async (videoFile) => {
+        try {
+          const url = await uploadFile(
+            videoFile.file, 
+            'video', 
+            videoFile.id,
+            updateVideoProgress,
+            setVideoError
+          );
+          uploadedVideos.push(url);
+          return { success: true, fileName: videoFile.file.name };
+        } catch (error: any) {
+          const errorMsg = `Erreur lors de l'upload de ${videoFile.file.name}: ${error.message}`;
+          uploadErrors.push(errorMsg);
+          return { success: false, fileName: videoFile.file.name, error: errorMsg };
+        }
+      });
+
+      // Attendre que tous les uploads se terminent (en parallèle)
+      const allUploadResults = await Promise.allSettled([
+        ...pdfUploadPromises,
+        ...videoUploadPromises
+      ]);
+
+      // Vérifier s'il y a eu des erreurs critiques
+      const failedUploads = allUploadResults.filter(result => 
+        result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success)
+      );
+
+      if (failedUploads.length > 0 && uploadedPdfs.length === 0 && uploadedVideos.length === 0) {
+        // Tous les uploads ont échoué
+        throw new Error('Tous les fichiers ont échoué lors de l\'upload. Veuillez réessayer.');
       }
 
-      // Upload Vidéos
-      for (let i = 0; i < videoFiles.length; i++) {
-        const videoFile = videoFiles[i];
-        try {
-          const url = await uploadFile(videoFile.file, 'video');
-          uploadedVideos.push(url);
-          showToast.loading(`Upload Vidéo ${i + 1}/${videoFiles.length}...`);
-        } catch (error) {
-          throw new Error(`Erreur lors de l'upload de la vidéo: ${videoFile.file.name}`);
-        }
+      if (failedUploads.length > 0) {
+        // Certains fichiers ont échoué mais d'autres ont réussi
+        showToast.error(`${failedUploads.length} fichier(s) n'ont pas pu être uploadés. Le cours sera créé avec les fichiers disponibles.`);
+      }
+
+      if (uploadedPdfs.length === 0 && uploadedVideos.length === 0) {
+        throw new Error('Aucun fichier n\'a pu être uploadé. Veuillez réessayer.');
       }
 
       // Créer le cours
@@ -264,7 +348,13 @@ export default function CreateCourse() {
 
       if (response.ok) {
         showToast.success('Cours créé avec succès !');
-        router.push('/admin/courses/approve');
+        // Rediriger selon le rôle : formateurs vers leurs formations, admins vers la validation
+        const userRole = session?.user?.role?.name;
+        if (userRole === 'admin') {
+          router.push('/admin/courses/approve');
+        } else {
+          router.push('/formateur/courses');
+        }
       } else {
         const data = await response.json();
         showToast.error(data.message || 'Erreur lors de la création du cours');
@@ -416,23 +506,65 @@ export default function CreateCourse() {
                   </div>
 
                   {pdfFiles.length > 0 && (
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-4 space-y-3">
                       {pdfFiles.map((pdf, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            <FiFileText className="w-5 h-5 text-red-600" />
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{pdf.file.name}</p>
-                              <p className="text-xs text-gray-500">{formatFileSize(pdf.file.size)}</p>
+                        <div key={pdf.id} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-3 flex-1 min-w-0">
+                              <FiFileText className="w-5 h-5 text-red-600 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">{pdf.file.name}</p>
+                                <p className="text-xs text-gray-500">{formatFileSize(pdf.file.size)}</p>
+                              </div>
                             </div>
+                            {!pdf.uploading && !pdf.error && (
+                              <button
+                                type="button"
+                                onClick={() => removePdf(index)}
+                                className="text-red-600 hover:text-red-800 flex-shrink-0 ml-2 p-1 hover:bg-red-50 rounded"
+                              >
+                                <FiX className="w-5 h-5" />
+                              </button>
+                            )}
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => removePdf(index)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <FiX className="w-5 h-5" />
-                          </button>
+                          
+                          {/* Barre de progression */}
+                          {pdf.uploading && (
+                            <div className="mt-2">
+                              <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                                <span>Upload en cours...</span>
+                                <span>{pdf.progress}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div 
+                                  className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                                  style={{ width: `${pdf.progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Erreur */}
+                          {pdf.error && (
+                            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                              {pdf.error}
+                              <button
+                                type="button"
+                                onClick={() => removePdf(index)}
+                                className="ml-2 text-red-600 hover:text-red-800 underline"
+                              >
+                                Retirer
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Succès */}
+                          {!pdf.uploading && !pdf.error && pdf.url && (
+                            <div className="mt-2 flex items-center text-xs text-green-600">
+                              <FiCheckCircle className="w-4 h-4 mr-1" />
+                              <span>Upload réussi</span>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -462,23 +594,65 @@ export default function CreateCourse() {
                   </div>
 
                   {videoFiles.length > 0 && (
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-4 space-y-3">
                       {videoFiles.map((video, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            <FiVideo className="w-5 h-5 text-blue-600" />
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{video.file.name}</p>
-                              <p className="text-xs text-gray-500">{formatFileSize(video.file.size)}</p>
+                        <div key={video.id} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-3 flex-1 min-w-0">
+                              <FiVideo className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">{video.file.name}</p>
+                                <p className="text-xs text-gray-500">{formatFileSize(video.file.size)}</p>
+                              </div>
                             </div>
+                            {!video.uploading && !video.error && (
+                              <button
+                                type="button"
+                                onClick={() => removeVideo(index)}
+                                className="text-red-600 hover:text-red-800 flex-shrink-0 ml-2 p-1 hover:bg-red-50 rounded"
+                              >
+                                <FiX className="w-5 h-5" />
+                              </button>
+                            )}
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => removeVideo(index)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <FiX className="w-5 h-5" />
-                          </button>
+                          
+                          {/* Barre de progression */}
+                          {video.uploading && (
+                            <div className="mt-2">
+                              <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                                <span>Upload en cours...</span>
+                                <span>{video.progress}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div 
+                                  className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                                  style={{ width: `${video.progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Erreur */}
+                          {video.error && (
+                            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                              {video.error}
+                              <button
+                                type="button"
+                                onClick={() => removeVideo(index)}
+                                className="ml-2 text-red-600 hover:text-red-800 underline"
+                              >
+                                Retirer
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Succès */}
+                          {!video.uploading && !video.error && video.url && (
+                            <div className="mt-2 flex items-center text-xs text-green-600">
+                              <FiCheckCircle className="w-4 h-4 mr-1" />
+                              <span>Upload réussi</span>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

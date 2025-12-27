@@ -18,10 +18,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(401).json({ message: 'Non authentifié' });
     }
 
-    // Vérifier les permissions
-    const userRole = session.user.role;
-    if (!userRole || !hasPermission(userRole.permissions, PERMISSIONS.COURSE_READ)) {
-      return res.status(403).json({ message: 'Accès refusé' });
+    // Vérifier que l'utilisateur est un admin
+    const userRoleName = session.user.role?.name;
+    if (userRoleName !== 'admin') {
+      return res.status(403).json({ message: 'Accès refusé. Seuls les administrateurs peuvent accéder à cette ressource.' });
     }
 
     await connectDB();

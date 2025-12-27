@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { 
@@ -14,7 +14,50 @@ import { HiAcademicCap, HiLightBulb } from 'react-icons/hi';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 
+interface Course {
+  _id: string;
+  title: string;
+  description: string;
+  instructor: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  price: number;
+  category: string;
+  level: string;
+  duration: number;
+  thumbnail?: string;
+  resources?: {
+    pdfs: string[];
+    videos: string[];
+    quizzes: string[];
+  };
+  createdAt: string;
+}
+
 export default function Home() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/courses');
+      if (response.ok) {
+        const data = await response.json();
+        setCourses(data);
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const features = [
     {
       icon: <FiVideo className="w-8 h-8" />,
@@ -229,6 +272,174 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Featured Courses Section */}
+        <section className="py-24 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Formations <span className="text-blue-600">Populaires</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Découvrez nos formations les plus appréciées par nos apprenants
+              </p>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Chargement des formations...</p>
+              </div>
+            ) : courses.length === 0 ? (
+              <div className="text-center py-12">
+                <FiBook className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">Aucune formation disponible pour le moment</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {courses.map((course) => (
+                  <Link key={course._id} href={`/courses/${course._id}`}>
+                    <div className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer h-full flex flex-col border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">
+                      {/* Thumbnail Section */}
+                      <div className="relative h-52 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 overflow-hidden">
+                        {course.thumbnail ? (
+                          <>
+                            <img 
+                              src={course.thumbnail} 
+                              alt={course.title}
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600">
+                            <FaGraduationCap className="w-24 h-24 text-white opacity-30" />
+                          </div>
+                        )}
+                        
+                        {/* Overlay with play button on hover */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <div className="transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                            <div className="w-16 h-16 bg-white/95 rounded-full flex items-center justify-center shadow-2xl">
+                              <FiPlayCircle className="w-8 h-8 text-blue-600" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Category Badge */}
+                        <div className="absolute top-3 left-3">
+                          <span className="px-3 py-1.5 text-xs font-semibold bg-white/95 backdrop-blur-sm text-blue-700 rounded-full shadow-lg">
+                            {course.category}
+                          </span>
+                        </div>
+
+                        {/* Level Badge */}
+                        <div className="absolute top-3 right-3">
+                          <span className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-lg backdrop-blur-sm ${
+                            course.level === 'beginner' 
+                              ? 'bg-green-500/90 text-white' 
+                              : course.level === 'intermediate'
+                              ? 'bg-yellow-500/90 text-white'
+                              : 'bg-red-500/90 text-white'
+                          }`}>
+                            {course.level === 'beginner' ? 'Débutant' : course.level === 'intermediate' ? 'Intermédiaire' : 'Avancé'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Content Section */}
+                      <div className="p-5 flex-1 flex flex-col">
+                        {/* Title */}
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200 leading-snug">
+                          {course.title}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-1 leading-relaxed">
+                          {course.description}
+                        </p>
+
+                        {/* Instructor */}
+                        <div className="flex items-center space-x-3 mb-4 pb-4 border-b border-gray-100">
+                          <div className="relative">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md ring-2 ring-white">
+                              {course.instructor?.firstName?.[0]}{course.instructor?.lastName?.[0]}
+                            </div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {course.instructor?.firstName} {course.instructor?.lastName}
+                            </p>
+                            <p className="text-xs text-gray-500">Formateur</p>
+                          </div>
+                        </div>
+
+                        {/* Stats Row */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-4">
+                            {course.resources?.videos && course.resources.videos.length > 0 && (
+                              <div className="flex items-center space-x-1.5 text-gray-600">
+                                <div className="p-1.5 bg-blue-50 rounded-lg">
+                                  <FiVideo className="w-3.5 h-3.5 text-blue-600" />
+                                </div>
+                                <span className="text-xs font-medium">{course.resources.videos.length}</span>
+                              </div>
+                            )}
+                            {course.resources?.pdfs && course.resources.pdfs.length > 0 && (
+                              <div className="flex items-center space-x-1.5 text-gray-600">
+                                <div className="p-1.5 bg-purple-50 rounded-lg">
+                                  <FiFileText className="w-3.5 h-3.5 text-purple-600" />
+                                </div>
+                                <span className="text-xs font-medium">{course.resources.pdfs.length}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-1.5 text-gray-600">
+                            <div className="p-1.5 bg-orange-50 rounded-lg">
+                              <FiClock className="w-3.5 h-3.5 text-orange-600" />
+                            </div>
+                            <span className="text-xs font-medium">{course.duration}h</span>
+                          </div>
+                        </div>
+
+                        {/* Price & CTA */}
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div className="flex items-baseline space-x-1">
+                            <span className="text-2xl font-extrabold text-gray-900">
+                              {course.price}
+                            </span>
+                            <span className="text-sm font-medium text-gray-500">MRU</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-blue-600 group-hover:text-blue-700">
+                            <span className="text-sm font-semibold hidden group-hover:inline-block transition-all">
+                              Découvrir
+                            </span>
+                            <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Hover Border Effect */}
+                      <div className="absolute inset-0 border-2 border-blue-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {courses.length > 0 && (
+              <div className="text-center mt-12">
+                <Link href="/courses">
+                  <Button variant="outline" size="lg" className="flex items-center space-x-2 mx-auto">
+                    <span>Voir toutes les formations</span>
+                    <FiArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
