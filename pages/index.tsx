@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { 
   FiBook, FiUsers, FiAward, FiPlayCircle, FiCheckCircle, 
   FiStar, FiArrowRight, FiTrendingUp, FiShield, FiClock,
-  FiVideo, FiFileText, FiHelpCircle, FiBarChart2
+  FiVideo, FiFileText, FiHelpCircle, FiBarChart2, FiX
 } from 'react-icons/fi';
 import { 
   FaGraduationCap, FaChalkboardTeacher, FaUserGraduate, 
@@ -38,7 +38,9 @@ interface Course {
 
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [allCourses, setAllCourses] = useState<Course[]>([]); // Toutes les formations pour le filtrage
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCourses();
@@ -50,12 +52,41 @@ export default function Home() {
       const response = await fetch('/api/courses');
       if (response.ok) {
         const data = await response.json();
+        setAllCourses(data);
         setCourses(data);
       }
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Filtrer les formations par catégorie
+  useEffect(() => {
+    if (selectedCategory) {
+      const filtered = allCourses.filter(course => 
+        course.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+      setCourses(filtered);
+    } else {
+      setCourses(allCourses);
+    }
+  }, [selectedCategory, allCourses]);
+
+  const handleCategoryClick = (categoryName: string) => {
+    if (selectedCategory === categoryName) {
+      // Si la catégorie est déjà sélectionnée, la désélectionner
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(categoryName);
+      // Scroll vers les formations
+      setTimeout(() => {
+        document.getElementById('courses-section')?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
     }
   };
   const features = [
@@ -126,6 +157,29 @@ export default function Home() {
         <meta name="description" content="Plateforme d'apprentissage en ligne avec des formations de qualité, des formateurs experts et un suivi de progression personnalisé." />
       </Head>
 
+      <style jsx>{`
+        @keyframes blob {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
+
       <div className="min-h-screen bg-white">
         {/* Navigation */}
         <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -173,7 +227,11 @@ export default function Home() {
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-20 pb-32">
           <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          {/* Decorative animated blobs */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8">
                 <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-medium">
@@ -276,14 +334,25 @@ export default function Home() {
         </section>
 
         {/* Featured Courses Section */}
-        <section className="py-24 bg-gray-50">
+        <section id="courses-section" className="py-24 bg-gradient-to-b from-gray-50 to-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Formations <span className="text-blue-600">Populaires</span>
+                {selectedCategory ? (
+                  <>
+                    Formations <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{selectedCategory}</span>
+                  </>
+                ) : (
+                  <>
+                    Formations <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Populaires</span>
+                  </>
+                )}
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Découvrez nos formations les plus appréciées par nos apprenants
+                {selectedCategory 
+                  ? `Découvrez toutes nos formations dans la catégorie ${selectedCategory}`
+                  : 'Découvrez nos formations les plus appréciées par nos apprenants'
+                }
               </p>
             </div>
 
@@ -293,9 +362,29 @@ export default function Home() {
                 <p className="mt-4 text-gray-600">Chargement des formations...</p>
               </div>
             ) : courses.length === 0 ? (
-              <div className="text-center py-12">
-                <FiBook className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">Aucune formation disponible pour le moment</p>
+              <div className="text-center py-16">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
+                  <FiBook className="w-10 h-10 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {selectedCategory ? `Aucune formation dans la catégorie "${selectedCategory}"` : 'Aucune formation disponible'}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {selectedCategory 
+                    ? 'Essayez une autre catégorie ou consultez toutes nos formations'
+                    : 'Revenez bientôt pour découvrir nos nouvelles formations'
+                  }
+                </p>
+                {selectedCategory && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedCategory(null)}
+                    className="inline-flex items-center space-x-2"
+                  >
+                    <span>Voir toutes les formations</span>
+                    <FiArrowRight className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -470,31 +559,71 @@ export default function Home() {
         </section>
 
         {/* Categories Section */}
-        <section id="categories" className="py-24 bg-white">
+        <section id="categories" className="py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Explorez nos <span className="text-blue-600">catégories</span>
+                Explorez nos <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">catégories</span>
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Trouvez la formation parfaite pour développer vos compétences
               </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-              {categories.map((category, index) => (
-                <Link key={index} href="/courses">
-                  <Card hover className="text-center border-2 border-gray-100 hover:border-blue-500 transition-all group">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 ${category.color} rounded-xl mb-4 text-white group-hover:scale-110 transition-transform`}>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+              {categories.map((category, index) => {
+                const isSelected = selectedCategory === category.name;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleCategoryClick(category.name)}
+                    className={`
+                      relative group text-center p-6 rounded-2xl border-2 transition-all duration-300
+                      ${isSelected 
+                        ? 'border-blue-500 bg-blue-50 shadow-lg scale-105' 
+                        : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md hover:scale-105'
+                      }
+                    `}
+                  >
+                    <div className={`
+                      inline-flex items-center justify-center w-16 h-16 ${category.color} rounded-xl mb-4 text-white
+                      transition-transform duration-300
+                      ${isSelected ? 'scale-110 ring-4 ring-blue-200' : 'group-hover:scale-110'}
+                    `}>
                       {category.icon}
                     </div>
-                    <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                    <h3 className={`
+                      font-semibold transition-colors duration-300
+                      ${isSelected ? 'text-blue-600' : 'text-gray-900 group-hover:text-blue-600'}
+                    `}>
                       {category.name}
                     </h3>
-                  </Card>
-                </Link>
-              ))}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-3 h-3 bg-blue-600 rounded-full animate-pulse"></div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
+
+            {/* Badge de catégorie sélectionnée */}
+            {selectedCategory && (
+              <div className="mt-8 flex justify-center">
+                <div className="inline-flex items-center space-x-3 px-6 py-3 bg-blue-100 border-2 border-blue-300 rounded-full">
+                  <span className="text-sm font-medium text-blue-900">
+                    Filtré par: <span className="font-bold">{selectedCategory}</span>
+                  </span>
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className="ml-2 text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    <FiX className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
