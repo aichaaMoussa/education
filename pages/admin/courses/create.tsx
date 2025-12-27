@@ -366,7 +366,7 @@ export default function CreateCourse() {
                       </div>
 
                       <Input
-                        label="Prix (€) *"
+                        label="Prix (MRU) *"
                         type="number"
                         step="0.01"
                         min="0"

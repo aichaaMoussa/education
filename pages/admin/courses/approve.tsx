@@ -187,7 +187,7 @@ export default function ApproveCourses() {
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Prix:</span>
-                        <span className="font-bold text-blue-600">{course.price}€</span>
+                        <span className="font-bold text-blue-600">{course.price} MRU</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Catégorie:</span>
@@ -219,6 +219,15 @@ export default function ApproveCourses() {
                     )}
 
                     <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/admin/courses/${course._id}`)}
+                        className="flex items-center justify-center space-x-1"
+                      >
+                        <FiEye className="w-4 h-4" />
+                        <span>Voir</span>
+                      </Button>
                       <Button
                         variant="primary"
                         size="sm"

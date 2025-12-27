@@ -112,7 +112,7 @@ export default function Statistics() {
     },
     {
       title: 'Revenus Total',
-      value: `${stats.revenusTotal}€`,
+      value: `${stats.revenusTotal} MRU`,
       icon: <FiDollarSign className="w-8 h-8" />,
       color: 'bg-indigo-500',
       bgColor: 'bg-indigo-100',

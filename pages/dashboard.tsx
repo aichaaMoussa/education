@@ -214,7 +214,7 @@ export default function Dashboard() {
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="text-sm font-medium text-gray-600 mb-1">Revenus Total</p>
-                              <p className="text-3xl font-bold text-gray-900">{stats.revenusTotal.toLocaleString()} €</p>
+                              <p className="text-3xl font-bold text-gray-900">{stats.revenusTotal.toLocaleString()} MRU</p>
                               <p className="text-xs text-gray-500 mt-1">Tous les temps</p>
                             </div>
                             <div className="bg-yellow-100 rounded-full p-4">

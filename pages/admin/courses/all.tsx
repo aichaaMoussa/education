@@ -244,7 +244,7 @@ export default function AllCourses() {
                             <span>•</span>
                             <span>Niveau: {course.level}</span>
                             <span>•</span>
-                            <span className="font-semibold text-blue-600">{course.price}€</span>
+                            <span className="font-semibold text-blue-600">{course.price} MRU</span>
                           </div>
                           <div className="flex gap-2 text-sm text-gray-500">
                             {course.resources?.pdfs && course.resources.pdfs.length > 0 && (

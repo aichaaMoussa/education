@@ -81,7 +81,7 @@ export default function Courses() {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{course.title}</h3>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-blue-600 font-bold">{course.price}€</span>
+                    <span className="text-blue-600 font-bold">{course.price} MRU</span>
                     <Button variant="outline" size="sm">
                       Voir plus
                     </Button>
