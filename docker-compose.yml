@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itekane-app
+    restart: unless-stopped
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/education
+    volumes:
+      - storage-data:/srv/itekane-storage
+    networks:
+      - itekane-network
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6
+    container_name: itekane-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - itekane-network
+    environment:
+      - MONGO_INITDB_DATABASE=education
+
+  nginx:
+    image: nginx:alpine
+    container_name: itekane-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - storage-data:/srv/itekane-storage:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - itekane-network
+    depends_on:
+      - app
+
+volumes:
+  storage-data:
+    driver: local
+  mongo-data:
+    driver: local
+
+networks:
+  itekane-network:
+    driver: bridge
+

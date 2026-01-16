@@ -1,9 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../lib/authOptions';
-import { createClient } from '@supabase/supabase-js';
+import { uploadObject } from '../../lib/storage';
+import StorageObject from '../../models/StorageObject';
+import '../../models';
+import connectDB from '../../lib/mongodb';
 
-// Désactiver le body parser pour gérer les fichiers
 export const config = {
   api: {
     bodyParser: {
@@ -21,99 +23,72 @@ export default async function handler(
   }
 
   try {
-    // Vérifier l'authentification
     const session = await getServerSession(req, res, authOptions);
     if (!session || !session.user) {
       return res.status(401).json({ message: 'Non authentifié' });
     }
 
-    // Initialiser Supabase avec la clé de service (bypass RLS)
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    
-    if (!supabaseUrl || !supabaseServiceKey) {
-      return res.status(500).json({ 
-        message: 'Configuration Supabase manquante. Vérifiez SUPABASE_SERVICE_ROLE_KEY dans .env.local'
-      });
-    }
+    await connectDB();
 
-    // Valider que la clé n'est pas un placeholder et qu'elle a la bonne longueur (JWT fait ~400+ caractères)
-    if (supabaseServiceKey === 'your-service-role-key-here' || supabaseServiceKey.length < 100) {
-      return res.status(500).json({ 
-        message: 'SUPABASE_SERVICE_ROLE_KEY invalide. Veuillez copier la vraie service_role key depuis Supabase Settings → API. La clé doit faire plus de 100 caractères et commencer par "eyJ".'
-      });
-    }
-
-    // Créer le client Supabase avec la service role key (bypass RLS automatiquement)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
-
-    // Récupérer le fichier depuis le body
     const { file, fileName, fileType } = req.body;
 
     if (!file || !fileName || !fileType) {
-      return res.status(400).json({ 
-        message: 'Fichier, fileName et fileType sont requis' 
+      return res.status(400).json({
+        message: 'Fichier, fileName et fileType sont requis',
       });
     }
 
-    if (fileType !== 'pdf' && fileType !== 'video') {
-      return res.status(400).json({ 
-        message: 'Type de fichier invalide. Utilisez "pdf" ou "video"' 
+    const allowedTypes = ['pdf', 'video', 'image'];
+    if (!allowedTypes.includes(fileType)) {
+      return res.status(400).json({
+        message: `Type de fichier invalide. Utilisez: ${allowedTypes.join(', ')}`,
       });
     }
 
-    // Convertir la chaîne base64 en Buffer
     const fileBuffer = Buffer.from(file, 'base64');
-    const filePath = `${fileType}s/${Date.now()}_${fileName}`;
 
-    // Déterminer le content type
-    let contentType = 'application/octet-stream';
+    let mimeType = 'application/octet-stream';
     if (fileType === 'pdf') {
-      contentType = 'application/pdf';
+      mimeType = 'application/pdf';
     } else if (fileType === 'video') {
-      // Essayer de détecter le type de vidéo depuis le nom du fichier
-      if (fileName.toLowerCase().endsWith('.mp4')) contentType = 'video/mp4';
-      else if (fileName.toLowerCase().endsWith('.mov')) contentType = 'video/quicktime';
-      else if (fileName.toLowerCase().endsWith('.avi')) contentType = 'video/x-msvideo';
-      else contentType = 'video/mp4';
+      const ext = fileName.toLowerCase();
+      if (ext.endsWith('.mp4')) mimeType = 'video/mp4';
+      else if (ext.endsWith('.mov')) mimeType = 'video/quicktime';
+      else if (ext.endsWith('.avi')) mimeType = 'video/x-msvideo';
+      else mimeType = 'video/mp4';
+    } else if (fileType === 'image') {
+      const ext = fileName.toLowerCase();
+      if (ext.endsWith('.jpg') || ext.endsWith('.jpeg')) mimeType = 'image/jpeg';
+      else if (ext.endsWith('.png')) mimeType = 'image/png';
+      else if (ext.endsWith('.gif')) mimeType = 'image/gif';
+      else if (ext.endsWith('.webp')) mimeType = 'image/webp';
+      else mimeType = 'image/jpeg';
     }
 
-    // Upload vers Supabase Storage avec la clé de service (bypass RLS)
-    const { data, error } = await supabase.storage
-      .from('education')
-      .upload(filePath, fileBuffer, {
-        contentType: contentType,
-        upsert: false,
-      });
+    const bucket = fileType === 'image' ? 'images' : fileType === 'video' ? 'videos' : 'documents';
+    const storageObject = await uploadObject(bucket, fileBuffer, fileName, mimeType);
 
-    if (error) {
-      console.error('Supabase upload error:', error);
-      return res.status(500).json({ 
-        message: 'Erreur lors de l\'upload du fichier',
-        error: error.message 
-      });
-    }
-
-    // Obtenir l'URL publique
-    const { data: urlData } = supabase.storage
-      .from('education')
-      .getPublicUrl(filePath);
+    const dbRecord = await StorageObject.create({
+      bucket: storageObject.bucket,
+      key: storageObject.key,
+      url: storageObject.url,
+      mimeType,
+      size: fileBuffer.length,
+      originalFilename: fileName,
+      uploadedBy: (session.user as any).id,
+    });
 
     return res.status(200).json({
-      url: urlData.publicUrl,
+      url: storageObject.url,
       fileName: fileName,
-      filePath: filePath,
+      filePath: storageObject.key,
+      id: dbRecord._id,
     });
   } catch (error: any) {
     console.error('Upload API error:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: 'Erreur lors de l\'upload du fichier',
-      error: error.message 
+      error: error.message,
     });
   }
 }

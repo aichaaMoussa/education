@@ -19,7 +19,12 @@ export default function Login() {
   // Rediriger si déjà connecté
   useEffect(() => {
     if (status === 'authenticated' && session) {
-      router.push('/dashboard');
+      const returnUrl = router.query.returnUrl as string;
+      if (returnUrl) {
+        router.push(returnUrl);
+      } else {
+        router.push('/dashboard');
+      }
     }
   }, [status, session, router]);
 
@@ -46,8 +51,13 @@ export default function Login() {
         setIsLoading(false);
         // Forcer la mise à jour de la session
         await getSession();
-        // Rediriger vers le dashboard
-        router.replace('/dashboard');
+        // Rediriger vers returnUrl si présent, sinon dashboard
+        const returnUrl = router.query.returnUrl as string;
+        if (returnUrl) {
+          router.replace(returnUrl);
+        } else {
+          router.replace('/dashboard');
+        }
       } else {
         setIsLoading(false);
       }

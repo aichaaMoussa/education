@@ -25,12 +25,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
 
     if (status === 'unauthenticated') {
-      router.push('/login');
+      const currentUrl = router.asPath;
+      const returnUrl = encodeURIComponent(currentUrl);
+      router.push(`/login?returnUrl=${returnUrl}`);
       return;
     }
 
     if (!session || !session.user) {
-      router.push('/login');
+      const currentUrl = router.asPath;
+      const returnUrl = encodeURIComponent(currentUrl);
+      router.push(`/login?returnUrl=${returnUrl}`);
       return;
     }
 
