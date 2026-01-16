@@ -29,8 +29,8 @@ function sanitizeFilename(filename: string): string {
     .replace(/^_+|_+$/g, '');
 }
 
-function ensureDirectoryExists(dirPath: string): Promise<void> {
-  return fs.mkdir(dirPath, { recursive: true });
+async function ensureDirectoryExists(dirPath: string): Promise<void> {
+  await fs.mkdir(dirPath, { recursive: true });
 }
 
 function getBucketPath(bucket: string): string {
