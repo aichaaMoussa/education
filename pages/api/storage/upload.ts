@@ -50,14 +50,18 @@ function parseMultipart(req: NextApiRequest): Promise<{
 
       Object.keys(files).forEach(key => {
         const fileValue = files[key];
-        const fileArray = Array.isArray(fileValue) ? fileValue : [fileValue];
-        parsedFiles[key] = fileArray.map((file: FormidableFile) => ({
-          fieldName: key,
-          originalFilename: file.originalFilename || 'unknown',
-          path: file.filepath,
-          size: file.size || 0,
-          headers: { 'content-type': file.mimetype || 'application/octet-stream' },
-        }));
+        if (fileValue) {
+          const fileArray = Array.isArray(fileValue) ? fileValue : [fileValue];
+          parsedFiles[key] = fileArray
+            .filter((file): file is FormidableFile => file !== undefined)
+            .map((file: FormidableFile) => ({
+              fieldName: key,
+              originalFilename: file.originalFilename || 'unknown',
+              path: file.filepath,
+              size: file.size || 0,
+              headers: { 'content-type': file.mimetype || 'application/octet-stream' },
+            }));
+        }
       });
 
       resolve({ fields: parsedFields, files: parsedFiles });
