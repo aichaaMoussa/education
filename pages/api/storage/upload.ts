@@ -45,7 +45,7 @@ function parseMultipart(req: NextApiRequest): Promise<{
 
       Object.keys(fields).forEach(key => {
         const value = fields[key];
-        parsedFields[key] = Array.isArray(value) ? value : [value];
+        parsedFields[key] = Array.isArray(value) ? value : (value !== undefined ? [value] : []);
       });
 
       Object.keys(files).forEach(key => {
