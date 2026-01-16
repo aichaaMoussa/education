@@ -16,6 +16,7 @@ import Button from '../../../components/ui/Button';
 import ProtectedRoute from '../../../components/protected/ProtectedRoute';
 import { PERMISSIONS } from '../../../lib/permissions';
 import { showToast } from '../../../lib/toast';
+import { normalizeMediaUrl } from '../../../lib/utils/url';
 
 interface Course {
   _id: string;
@@ -278,7 +279,7 @@ export default function CourseDetail() {
                         <video
                           controls
                           className="w-full h-full"
-                          src={selectedVideo}
+                          src={normalizeMediaUrl(selectedVideo)}
                         >
                           Votre navigateur ne supporte pas la lecture de vidéos.
                         </video>

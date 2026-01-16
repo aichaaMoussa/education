@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
+import { normalizeMediaUrl } from '../lib/utils/url';
 import Head from 'next/head';
 import Link from 'next/link';
 import { 
@@ -451,7 +452,7 @@ function PaymentPage() {
                   <div className="aspect-video bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-xl mb-4 overflow-hidden">
                     {course.thumbnail ? (
                       <img
-                        src={course.thumbnail}
+                        src={normalizeMediaUrl(course.thumbnail)}
                         alt={course.title}
                         className="w-full h-full object-cover"
                       />

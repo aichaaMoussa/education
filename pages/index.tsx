@@ -16,6 +16,7 @@ import { HiAcademicCap, HiLightBulb } from 'react-icons/hi';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Modal from '../components/ui/Modal';
+import { normalizeMediaUrl } from '../lib/utils/url';
 
 interface Course {
   _id: string;
@@ -435,7 +436,7 @@ export default function Home() {
                         {course.thumbnail ? (
                           <>
                             <img 
-                              src={course.thumbnail} 
+                              src={normalizeMediaUrl(course.thumbnail)} 
                               alt={course.title}
                               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             />
@@ -770,7 +771,7 @@ export default function Home() {
                 {selectedCourse.thumbnail ? (
                   <>
                     <img 
-                      src={selectedCourse.thumbnail} 
+                      src={normalizeMediaUrl(selectedCourse.thumbnail)} 
                       alt={selectedCourse.title}
                       className="w-full h-full object-cover"
                     />
