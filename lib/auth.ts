@@ -120,6 +120,44 @@ export async function authenticateUser(email: string, password: string): Promise
 }
 
 export async function getUserById(userId: string): Promise<AuthUser | null> {
+  // Si c'est le super admin (ID = 'super-admin'), retourner les infos du super admin
+  if (userId === 'super-admin') {
+    await connectDB();
+    
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
+    const superAdminFirstName = process.env.SUPER_ADMIN_FIRSTNAME || 'Super';
+    const superAdminLastName = process.env.SUPER_ADMIN_LASTNAME || 'Admin';
+
+    if (!superAdminEmail) {
+      return null;
+    }
+
+    // Trouver ou créer le rôle admin
+    let adminRole = await Role.findOne({ name: 'admin' });
+    
+    if (!adminRole) {
+      adminRole = await Role.create({
+        name: 'admin',
+        permissions: ['*'],
+        description: 'Administrateur avec tous les droits',
+      });
+    }
+
+    return {
+      id: 'super-admin',
+      email: superAdminEmail,
+      firstName: superAdminFirstName,
+      lastName: superAdminLastName,
+      role: {
+        id: adminRole._id.toString(),
+        name: adminRole.name,
+        permissions: adminRole.permissions || ['*'],
+      },
+    };
+  }
+
+  // Authentification normale via la base de données
   await connectDB();
   
   const user = await User.findById(userId).populate('role');

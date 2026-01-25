@@ -104,16 +104,28 @@ export const ROLE_PERMISSIONS = {
 
 // Fonction pour vérifier si un utilisateur a une permission
 export function hasPermission(userPermissions: string[], permission: Permission): boolean {
+  // Si l'utilisateur a la permission '*' (toutes les permissions), retourner true
+  if (userPermissions.includes('*')) {
+    return true;
+  }
   return userPermissions.includes(permission);
 }
 
 // Fonction pour vérifier plusieurs permissions
 export function hasAnyPermission(userPermissions: string[], permissions: Permission[]): boolean {
+  // Si l'utilisateur a la permission '*' (toutes les permissions), retourner true
+  if (userPermissions.includes('*')) {
+    return true;
+  }
   return permissions.some(permission => userPermissions.includes(permission));
 }
 
 // Fonction pour vérifier toutes les permissions
 export function hasAllPermissions(userPermissions: string[], permissions: Permission[]): boolean {
+  // Si l'utilisateur a la permission '*' (toutes les permissions), retourner true
+  if (userPermissions.includes('*')) {
+    return true;
+  }
   return permissions.every(permission => userPermissions.includes(permission));
 }
 
