@@ -87,7 +87,7 @@ export default async function handler(
       title,
       category,
       price: parseFloat(price),
-      instructor: user._id,
+      instructor: instructorId,
       isPublished: courseData.isPublished,
       isApproved: courseData.isApproved,
     });
