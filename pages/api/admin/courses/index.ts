@@ -41,11 +41,29 @@ export default async function handler(
     // Note: L'instructor sera l'utilisateur connecté
     // Pour obtenir l'ID de l'utilisateur, on doit le récupérer depuis la session
     // On va utiliser l'email pour trouver l'utilisateur
-    const User = (await import('../../../../models/User')).default;
-    const user = await User.findOne({ email: session.user.email });
     
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    // Vérifier si c'est le super admin
+    const isSuperAdmin = session.user.id === 'super-admin' || 
+                        session.user.email === process.env.SUPER_ADMIN_EMAIL;
+
+    let instructorId = null;
+
+    if (!isSuperAdmin) {
+      // Récupérer l'utilisateur pour obtenir son ID (pour les admins/formateurs normaux)
+      const User = (await import('../../../../models/User')).default;
+      const user = await User.findOne({ email: session.user.email });
+      
+      if (!user) {
+        return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      }
+      
+      instructorId = user._id;
+    } else {
+      // Le super admin ne peut pas créer de cours directement car il n'a pas d'ID MongoDB
+      // Il doit utiliser un formateur existant ou créer un compte formateur
+      return res.status(403).json({ 
+        message: 'Le super admin ne peut pas créer de cours directement. Veuillez utiliser un compte formateur.' 
+      });
     }
 
     const courseData = {
@@ -54,7 +72,7 @@ export default async function handler(
       price: parseFloat(price),
       description,
       level,
-      instructor: user._id,
+      instructor: instructorId,
       resources: {
         pdfs: resources?.pdfs || [],
         videos: resources?.videos || [],

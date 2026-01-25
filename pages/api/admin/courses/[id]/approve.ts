@@ -33,18 +33,33 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const { action } = req.body; // 'approve' ou 'reject'
 
-    // Récupérer l'utilisateur pour obtenir son ID
-    const User = (await import('../../../../../models/User')).default;
-    const user = await User.findOne({ email: session.user.email });
-    
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    // Vérifier si c'est le super admin
+    const isSuperAdmin = session.user.id === 'super-admin' || 
+                        session.user.email === process.env.SUPER_ADMIN_EMAIL;
+
+    let approvedByUserId = null;
+
+    if (!isSuperAdmin) {
+      // Récupérer l'utilisateur pour obtenir son ID (pour les admins normaux)
+      const User = (await import('../../../../../models/User')).default;
+      const user = await User.findOne({ email: session.user.email });
+      
+      if (!user) {
+        return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      }
+      
+      approvedByUserId = user._id;
     }
+    // Pour le super admin, on laisse approvedByUserId à null
+    // Le modèle Course accepte approvedBy comme optionnel
 
     const updateData: any = {};
     if (action === 'approve') {
       updateData.isApproved = true;
-      updateData.approvedBy = user._id;
+      if (approvedByUserId) {
+        updateData.approvedBy = approvedByUserId;
+      }
+      // Si c'est le super admin, approvedBy reste undefined/null
       updateData.approvedAt = new Date();
     } else if (action === 'reject') {
       updateData.isApproved = false;
