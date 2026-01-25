@@ -1,4 +1,4 @@
-# Easy Tech - Plateforme de Gestion de Formations en Ligne
+# itkane - Plateforme de Gestion de Formations en Ligne
 
 Une plateforme moderne de gestion de formations en ligne similaire à Udemy et Coursera, construite avec Next.js, MongoDB, et un système de gestion de rôles dynamique avec une interface utilisateur moderne.
 

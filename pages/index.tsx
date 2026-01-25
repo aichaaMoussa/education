@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { 
   FiBook, FiUsers, FiAward, FiPlayCircle, FiCheckCircle, 
   FiStar, FiArrowRight, FiTrendingUp, FiShield, FiClock,
-  FiVideo, FiFileText, FiHelpCircle, FiBarChart2, FiX
+  FiVideo, FiFileText, FiHelpCircle, FiBarChart2, FiX, FiUser, FiLogOut
 } from 'react-icons/fi';
 import { 
   FaGraduationCap, FaChalkboardTeacher, FaUserGraduate, 
@@ -16,6 +16,7 @@ import { HiAcademicCap, HiLightBulb } from 'react-icons/hi';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Modal from '../components/ui/Modal';
+import Logo from '../components/ui/Logo';
 import { normalizeMediaUrl } from '../lib/utils/url';
 
 interface Course {
@@ -130,6 +131,12 @@ export default function Home() {
     // Ajouter au panier et peut-être afficher une notification
     handleCloseModal();
   };
+
+  const handleLogout = async () => {
+    const { signOut } = await import('next-auth/react');
+    await signOut({ redirect: false });
+    router.push('/');
+  };
   const features = [
     {
       icon: <FiVideo className="w-8 h-8" />,
@@ -194,7 +201,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Easy Tech - Apprenez en ligne avec les meilleurs formateurs</title>
+        <title>itkane - Apprenez en ligne avec les meilleurs formateurs</title>
         <meta name="description" content="Plateforme d'apprentissage en ligne avec des formations de qualité, des formateurs experts et un suivi de progression personnalisé." />
       </Head>
 
@@ -226,14 +233,7 @@ export default function Home() {
         <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-2">
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg p-2">
-                  <FaGraduationCap className="text-2xl text-white" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  Easy Tech
-                </span>
-              </div>
+              <Logo size="md" />
               
               <div className="hidden md:flex items-center space-x-8">
                 <Link href="#features" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
@@ -248,18 +248,48 @@ export default function Home() {
               </div>
 
               <div className="flex items-center space-x-4">
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
-                >
-                  Connexion
-                </Link>
-                <Link href="/register">
-                  <Button variant="primary" className="flex items-center space-x-2">
-                    <span>Commencer</span>
-                    <FiArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
+                {status === 'authenticated' && session?.user ? (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                        <FiUser className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div className="hidden md:block text-sm">
+                        <p className="text-gray-700 font-medium">
+                          {session.user.firstName || ''} {session.user.lastName || ''}
+                        </p>
+                      </div>
+                    </div>
+                    <Link href="/dashboard">
+                      <Button variant="outline" className="flex items-center space-x-2">
+                        <span>Dashboard</span>
+                      </Button>
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center space-x-1 px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Déconnexion"
+                    >
+                      <FiLogOut className="w-4 h-4" />
+                      <span className="hidden md:inline">Déconnexion</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="px-4 py-2 text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                    >
+                      Connexion
+                    </Link>
+                    <Link href="/register">
+                      <Button variant="primary" className="flex items-center space-x-2">
+                        <span>Commencer</span>
+                        <FiArrowRight className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -283,7 +313,7 @@ export default function Home() {
                 <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
                   Apprenez sans limites avec{' '}
                   <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Easy Tech
+                    itkane
                   </span>
                 </h1>
                 
@@ -417,14 +447,15 @@ export default function Home() {
                   }
                 </p>
                 {selectedCategory && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setSelectedCategory(null)}
-                    className="inline-flex items-center space-x-2"
-                  >
-                    <span>Voir toutes les formations</span>
-                    <FiArrowRight className="w-4 h-4" />
-                  </Button>
+                  <Link href="/courses">
+                    <Button
+                      variant="outline"
+                      className="inline-flex items-center space-x-2"
+                    >
+                      <span>Voir toutes les formations</span>
+                      <FiArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
                 )}
               </div>
             ) : (
@@ -582,7 +613,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Pourquoi choisir <span className="text-blue-600">Easy Tech</span> ?
+                Pourquoi choisir <span className="text-blue-600">itkane</span> ?
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Une expérience d'apprentissage complète avec tous les outils dont vous avez besoin pour réussir
@@ -680,7 +711,7 @@ export default function Home() {
               Prêt à commencer votre parcours d'apprentissage ?
             </h2>
             <p className="text-xl text-blue-100 mb-8">
-              Rejoignez des milliers d'apprenants qui développent leurs compétences avec Easy Tech
+              Rejoignez des milliers d'apprenants qui développent leurs compétences avec itkane
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register">
@@ -705,7 +736,7 @@ export default function Home() {
               <div>
                 <div className="flex items-center space-x-2 mb-4">
                   <FaGraduationCap className="text-2xl text-blue-400" />
-                  <span className="text-xl font-bold text-white">Easy Tech</span>
+                  <span className="text-xl font-bold text-white">itkane</span>
                 </div>
                 <p className="text-sm text-gray-400">
                   La plateforme d'apprentissage en ligne pour développer vos compétences et atteindre vos objectifs.
@@ -749,7 +780,7 @@ export default function Home() {
             </div>
 
             <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-              <p>&copy; 2024 Easy Tech. Tous droits réservés.</p>
+              <p>&copy; 2024 itkane. Tous droits réservés.</p>
             </div>
           </div>
         </footer>

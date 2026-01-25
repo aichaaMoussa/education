@@ -3,10 +3,11 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { FiUser, FiMail, FiLock, FiUserPlus } from 'react-icons/fi';
-import { FaGraduationCap, FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
+import { FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import Select from '../components/ui/Select';
+import Logo from '../components/ui/Logo';
 import { showToast } from '../lib/toast';
 
 export default function Register() {
@@ -85,18 +86,15 @@ export default function Register() {
   return (
     <>
       <Head>
-        <title>Inscription - Easy Tech</title>
+        <title>Inscription - itkane</title>
       </Head>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <div className="flex justify-center mb-4">
-              <div className="bg-blue-600 rounded-full p-3">
-                <FaGraduationCap className="text-4xl text-white" />
-              </div>
+              <Logo size="lg" showText={true} />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Easy Tech</h1>
-            <h2 className="text-2xl font-semibold text-gray-700">Inscription</h2>
+            <h2 className="text-2xl font-semibold text-gray-700 mt-2">Inscription</h2>
             <p className="mt-2 text-sm text-gray-600">
               Créez votre compte pour commencer votre apprentissage
             </p>

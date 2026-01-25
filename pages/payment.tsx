@@ -8,9 +8,9 @@ import {
   FiCreditCard, FiLock, FiCheckCircle, FiArrowLeft, 
   FiDollarSign, FiShield, FiCheck
 } from 'react-icons/fi';
-import { FaGraduationCap } from 'react-icons/fa';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import Logo from '../components/ui/Logo';
 import ProtectedRoute from '../components/protected/ProtectedRoute';
 import { showToast } from '../lib/toast';
 
@@ -238,7 +238,7 @@ function PaymentPage() {
   return (
     <>
       <Head>
-        <title>Paiement - Easy Tech</title>
+        <title>Paiement - itkane</title>
         <meta name="description" content="Finalisez votre achat" />
       </Head>
 
@@ -247,25 +247,18 @@ function PaymentPage() {
         <nav className="bg-white shadow-sm border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg p-2">
-                  <FaGraduationCap className="text-2xl text-white" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  Easy Tech
-                </span>
-              </Link>
+              <Logo size="md" />
             </div>
           </div>
         </nav>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <Link
-            href={`/courses/${course._id}`}
+            href="/courses"
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors mb-8"
           >
             <FiArrowLeft className="w-5 h-5" />
-            <span>Retour au cours</span>
+            <span>Retour aux cours</span>
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -458,7 +451,7 @@ function PaymentPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <FaGraduationCap className="w-16 h-16 text-white opacity-50" />
+                        <Logo size="lg" showText={false} className="opacity-50" />
                       </div>
                     )}
                   </div>

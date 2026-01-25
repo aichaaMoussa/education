@@ -129,7 +129,7 @@ export default function Dashboard() {
   return (
     <ProtectedRoute requiredPermission={PERMISSIONS.DASHBOARD_VIEW}>
       <Head>
-        <title>Dashboard - Easy Tech</title>
+        <title>Dashboard - itkane</title>
       </Head>
       <div className="min-h-screen bg-gray-50">
         <Header 

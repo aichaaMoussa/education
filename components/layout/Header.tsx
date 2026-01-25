@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { FiUser, FiLogOut, FiBook, FiBarChart2, FiSettings } from 'react-icons/fi';
-import { FaGraduationCap } from 'react-icons/fa';
+import Logo from '../ui/Logo';
 
 interface HeaderProps {
   user?: {
@@ -27,15 +27,10 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
   };
 
   return (
-    <header className="bg-white shadow-md border-b border-gray-200">
+    <header className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50 w-full" style={{ position: 'sticky', top: 0, zIndex: 50 }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
-            <FaGraduationCap className="text-2xl text-blue-600" />
-            <Link href="/" className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
-              Easy Tech
-            </Link>
-          </div>
+          <Logo size="md" />
           
           {/* <nav className="hidden md:flex items-center space-x-6">
             <Link href="/courses" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors">

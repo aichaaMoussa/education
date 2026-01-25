@@ -162,15 +162,12 @@ export default function AllCourses() {
     return matchesSearch && matchesFilter;
   });
 
-  if (!user) {
-    return null;
-  }
-
-  // Vérifier que l'utilisateur est un admin
-  if (user && user.role?.name !== 'admin') {
-    router.push('/dashboard');
-    return null;
-  }
+  // Rediriger l'utilisateur non-admin après le rendu du Header
+  useEffect(() => {
+    if (user && user.role?.name !== 'admin') {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   return (
     <ProtectedRoute requiredPermission={PERMISSIONS.COURSE_READ}>
@@ -190,6 +187,16 @@ export default function AllCourses() {
             router.push('/login');
           }}
         />
+        {/* Vérifier que l'utilisateur est un admin - après le Header pour qu'il soit toujours affiché */}
+        {user && user.role?.name !== 'admin' && (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <p className="text-gray-600 mb-4">Accès refusé. Redirection en cours...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            </div>
+          </div>
+        )}
+        {user && user.role?.name === 'admin' && (
         <div className="flex">
           <Sidebar items={sidebarItems} userPermissions={(user?.role?.permissions || []) as any} />
           <main className="flex-1 p-8">
@@ -334,8 +341,9 @@ export default function AllCourses() {
             </div>
           </main>
         </div>
+        )}
 
-        {/* Confirmation Dialog */}
+        {/* Confirmation Dialog - Toujours visible */}
         <ConfirmDialog
           isOpen={confirmDialog.isOpen}
           onClose={handleCloseDialog}

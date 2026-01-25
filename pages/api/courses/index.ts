@@ -15,14 +15,22 @@ export default async function handler(
     await connectDB();
 
     // Récupérer uniquement les formations approuvées et publiées (publique)
-    const courses = await Course.find({
+    // Si le paramètre 'all' est présent, retourner toutes les formations sans limite
+    const limit = req.query.all === 'true' ? undefined : 12;
+    const query = Course.find({
       isApproved: true,
       isPublished: true,
     })
       .populate('instructor', 'firstName lastName email')
-      .select('-lessons -students')
-      .sort({ createdAt: -1 })
-      .limit(12); // Limiter à 12 formations pour la page d'accueil
+      .populate('students', '_id')
+      .select('-lessons')
+      .sort({ createdAt: -1 });
+    
+    if (limit) {
+      query.limit(limit);
+    }
+    
+    const courses = await query;
 
     return res.status(200).json(courses);
   } catch (error: any) {

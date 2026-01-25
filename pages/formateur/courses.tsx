@@ -111,7 +111,7 @@ export default function FormateurCourses() {
   return (
     <ProtectedRoute requiredPermission={PERMISSIONS.COURSE_READ}>
       <Head>
-        <title>Mes Formations - Easy Tech</title>
+        <title>Mes Formations - itkane</title>
       </Head>
       <div className="min-h-screen bg-gray-50">
         <Header 
