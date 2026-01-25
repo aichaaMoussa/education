@@ -33,14 +33,14 @@ export default async function handler(
     const { file, fileName, fileType } = req.body;
 
     if (!file || !fileName || !fileType) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         message: 'Fichier, fileName et fileType sont requis',
       });
     }
 
     const allowedTypes = ['pdf', 'video', 'image'];
     if (!allowedTypes.includes(fileType)) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         message: `Type de fichier invalide. Utilisez: ${allowedTypes.join(', ')}`,
       });
     }
@@ -86,7 +86,7 @@ export default async function handler(
     });
   } catch (error: any) {
     console.error('Upload API error:', error);
-    return res.status(500).json({
+    return res.status(500).json({ 
       message: 'Erreur lors de l\'upload du fichier',
       error: error.message,
     });

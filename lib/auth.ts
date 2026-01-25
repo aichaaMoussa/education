@@ -49,6 +49,47 @@ export function verifyToken(token: string): any {
 }
 
 export async function authenticateUser(email: string, password: string): Promise<AuthUser | null> {
+  // Vérifier les identifiants Super Admin depuis .env.local
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
+  const superAdminFirstName = process.env.SUPER_ADMIN_FIRSTNAME || 'Super';
+  const superAdminLastName = process.env.SUPER_ADMIN_LASTNAME || 'Admin';
+
+  if (
+    superAdminEmail &&
+    superAdminPassword &&
+    email === superAdminEmail &&
+    password === superAdminPassword
+  ) {
+    // Connexion en tant que Super Admin
+    await connectDB();
+
+    // Trouver ou créer le rôle admin
+    let adminRole = await Role.findOne({ name: 'admin' });
+    
+    if (!adminRole) {
+      // Si le rôle admin n'existe pas, créer un rôle admin par défaut
+      adminRole = await Role.create({
+        name: 'admin',
+        permissions: ['*'], // Toutes les permissions
+        description: 'Administrateur avec tous les droits',
+      });
+    }
+
+    return {
+      id: 'super-admin',
+      email: superAdminEmail,
+      firstName: superAdminFirstName,
+      lastName: superAdminLastName,
+      role: {
+        id: adminRole._id.toString(),
+        name: adminRole.name,
+        permissions: adminRole.permissions || ['*'],
+      },
+    };
+  }
+
+  // Authentification normale via la base de données
   await connectDB();
   
   const user = await User.findOne({ email }).populate('role');
