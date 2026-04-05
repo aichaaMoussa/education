@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { normalizeMediaUrl } from '../lib/utils/url';
 import Head from 'next/head';
 import Link from 'next/link';
+<<<<<<< HEAD
 import { jsPDF } from 'jspdf';
 import {
   FiCreditCard,
@@ -16,6 +17,11 @@ import {
   FiX,
   FiDownload,
   FiBookOpen,
+=======
+import { 
+  FiCreditCard, FiLock, FiCheckCircle, FiArrowLeft, 
+  FiDollarSign, FiShield, FiCheck
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 } from 'react-icons/fi';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -46,6 +52,7 @@ interface PaymentMethod {
   description: string;
 }
 
+<<<<<<< HEAD
 interface InvoiceTransaction {
   _id: string;
   paidAt: string;
@@ -124,6 +131,8 @@ function exportReceiptPdf(tx: InvoiceTransaction) {
   doc.save(`recu-paiement-${tx._id}.pdf`);
 }
 
+=======
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 const paymentMethods: PaymentMethod[] = [
   {
     id: 'wallet',
@@ -153,15 +162,23 @@ const paymentMethods: PaymentMethod[] = [
 
 function PaymentPage() {
   const router = useRouter();
+<<<<<<< HEAD
   const { status } = useSession();
+=======
+  const { data: session } = useSession();
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   const { courseId } = router.query;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+<<<<<<< HEAD
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [invoice, setInvoice] = useState<InvoiceTransaction | null>(null);
 
+=======
+  
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   // États pour Bankily
   const [phoneNumber, setPhoneNumber] = useState('');
   const [passcode, setPasscode] = useState('');
@@ -171,6 +188,7 @@ function PaymentPage() {
   const MERCHANT_CODE = '3456';
 
   useEffect(() => {
+<<<<<<< HEAD
     if (!courseId || typeof courseId !== 'string') {
       router.push('/');
       return;
@@ -223,6 +241,35 @@ function PaymentPage() {
       cancelled = true;
     };
   }, [courseId, router, status]);
+=======
+    if (courseId) {
+      fetchCourse();
+    } else {
+      router.push('/');
+    }
+  }, [courseId]);
+
+  const fetchCourse = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/courses`);
+      if (response.ok) {
+        const courses = await response.json();
+        const foundCourse = courses.find((c: Course) => c._id === courseId);
+        if (foundCourse) {
+          setCourse(foundCourse);
+        } else {
+          router.push('/');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching course:', error);
+      router.push('/');
+    } finally {
+      setLoading(false);
+    }
+  };
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
   // Authentification Bankily (utilise les credentials du commerçant, pas du client)
   const handleBankilyAuth = async () => {
@@ -259,6 +306,7 @@ function PaymentPage() {
   const handlePayment = async () => {
     if (!selectedPaymentMethod || !course) return;
 
+<<<<<<< HEAD
     const saveTransaction = async (params: {
       walletType: string;
       phoneNumber: string;
@@ -290,6 +338,9 @@ function PaymentPage() {
       return true;
     };
 
+=======
+    // Si Bankily est sélectionné, vérifier l'authentification
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
     if (selectedPaymentMethod === 'bankily') {
       if (!phoneNumber || !passcode) {
         showToast.error('Veuillez remplir le numéro de téléphone et le passcode');
@@ -297,21 +348,38 @@ function PaymentPage() {
       }
 
       setProcessing(true);
+<<<<<<< HEAD
       try {
         let token = accessToken;
         if (!token) {
+=======
+      
+      try {
+        // Si pas de token, authentifier d'abord avec les credentials du COMMERÇANT
+        let token = accessToken;
+        if (!token) {
+          // L'authentification utilise les credentials du COMMERÇANT (stockés côté serveur)
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
           const authResponse = await fetch('/api/payment/bankily/auth', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
+<<<<<<< HEAD
             body: JSON.stringify({}),
+=======
+            body: JSON.stringify({}), // Pas besoin de credentials côté client
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
           });
 
           const authData = await authResponse.json();
 
           if (!authResponse.ok) {
             showToast.error(authData.message || 'Erreur d\'authentification');
+<<<<<<< HEAD
+=======
+            setProcessing(false);
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
             return;
           }
 
@@ -319,8 +387,14 @@ function PaymentPage() {
           setAccessToken(token);
         }
 
+<<<<<<< HEAD
         const operationId = `OP-${course._id}-${Date.now()}`;
 
+=======
+        // Effectuer le paiement
+        const operationId = `OP-${course._id}-${Date.now()}`;
+        
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
         const response = await fetch('/api/payment/bankily/pay', {
           method: 'POST',
           headers: {
@@ -338,6 +412,7 @@ function PaymentPage() {
 
         const data = await response.json();
 
+<<<<<<< HEAD
         const bankilyOk =
           data.success === true || String(data.errorCode) === '0';
 
@@ -375,6 +450,29 @@ function PaymentPage() {
       showToast.error('Erreur lors du paiement');
     } finally {
       setProcessing(false);
+=======
+        if (!response.ok || !data.success) {
+          showToast.error(data.message || 'Erreur lors du paiement');
+          setProcessing(false);
+          return;
+        }
+
+        showToast.success('Paiement effectué avec succès !');
+        // Rediriger vers la page de confirmation
+        router.push(`/payment/success?courseId=${course._id}&transactionId=${data.transactionId}`);
+      } catch (error: any) {
+        console.error('Payment error:', error);
+        showToast.error('Erreur lors du paiement');
+        setProcessing(false);
+      }
+    } else {
+      // Autres méthodes de paiement (à implémenter)
+      setProcessing(true);
+      setTimeout(() => {
+        setProcessing(false);
+        router.push(`/payment/success?courseId=${course._id}`);
+      }, 2000);
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
     }
   };
 
@@ -674,6 +772,7 @@ function PaymentPage() {
           </div>
         </div>
       </div>
+<<<<<<< HEAD
 
       {invoiceModalOpen && invoice && (
         <div
@@ -794,6 +893,8 @@ function PaymentPage() {
           </div>
         </div>
       )}
+=======
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
     </>
   );
 }

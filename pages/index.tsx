@@ -50,12 +50,16 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+<<<<<<< HEAD
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
+=======
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
+<<<<<<< HEAD
   useEffect(() => {
     if (status !== 'authenticated') {
       setEnrolledCourseIds([]);
@@ -69,6 +73,8 @@ export default function Home() {
       .catch(() => setEnrolledCourseIds([]));
   }, [status]);
 
+=======
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   const fetchCourses = async () => {
     try {
       setLoading(true);
@@ -971,6 +977,7 @@ export default function Home() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+<<<<<<< HEAD
                   {enrolledCourseIds.includes(selectedCourse._id) ? (
                     <>
                       <Button
@@ -1012,6 +1019,26 @@ export default function Home() {
                       </Button>
                     </>
                   )}
+=======
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={handleBuyNow}
+                    className="flex-1 flex items-center justify-center space-x-2 py-4 text-lg font-semibold"
+                  >
+                    <span>Acheter maintenant</span>
+                    <FiArrowRight className="w-5 h-5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={handleAddToCart}
+                    className="flex-1 flex items-center justify-center space-x-2 py-4 text-lg font-semibold border-2"
+                  >
+                    <FiCheckCircle className="w-5 h-5" />
+                    <span>Ajouter au panier</span>
+                  </Button>
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
                 </div>
               </div>
             </div>

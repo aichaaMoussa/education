@@ -16,6 +16,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
+<<<<<<< HEAD
           const email = credentials?.email?.trim();
           const password = credentials?.password?.trim();
           if (!email || !password) {
@@ -31,12 +32,28 @@ export const authOptions: NextAuthOptions = {
             process.env.SUPER_ADMIN_FIRSTNAME?.trim() || 'Super';
           const superAdminLastName =
             process.env.SUPER_ADMIN_LASTNAME?.trim() || 'Admin';
+=======
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error('Email et mot de passe requis');
+          }
+
+          // Vérifier les identifiants Super Admin depuis .env.local
+          const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+          const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
+          const superAdminFirstName = process.env.SUPER_ADMIN_FIRSTNAME || 'Super';
+          const superAdminLastName = process.env.SUPER_ADMIN_LASTNAME || 'Admin';
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
           if (
             superAdminEmail &&
             superAdminPassword &&
+<<<<<<< HEAD
             normalizedEmail === superAdminEmail.toLowerCase() &&
             password === superAdminPassword
+=======
+            credentials.email === superAdminEmail &&
+            credentials.password === superAdminPassword
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
           ) {
             // Connexion en tant que Super Admin
             await connectDB();
@@ -55,7 +72,11 @@ export const authOptions: NextAuthOptions = {
 
             return {
               id: 'super-admin',
+<<<<<<< HEAD
               email: superAdminEmail.toLowerCase(),
+=======
+              email: superAdminEmail,
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
               name: `${superAdminFirstName} ${superAdminLastName}`,
               firstName: superAdminFirstName,
               lastName: superAdminLastName,
@@ -70,9 +91,13 @@ export const authOptions: NextAuthOptions = {
           // Authentification normale via la base de données
           await connectDB();
 
+<<<<<<< HEAD
           const user = await User.findOne({ email: normalizedEmail }).populate(
             'role'
           );
+=======
+          const user = await User.findOne({ email: credentials.email }).populate('role');
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
           if (!user) {
             throw new Error('Utilisateur non trouvé. Vérifiez votre email.');
@@ -86,7 +111,11 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Erreur de configuration du compte');
           }
 
+<<<<<<< HEAD
           const isValid = await verifyPassword(password, user.password);
+=======
+          const isValid = await verifyPassword(credentials.password, user.password);
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
           if (!isValid) {
             throw new Error('Mot de passe incorrect');

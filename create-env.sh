@@ -8,6 +8,7 @@ echo "🔧 Création du fichier .env.local..."
 NEXTAUTH_SECRET=$(openssl rand -base64 32)
 STORAGE_SECRET=$(openssl rand -base64 32)
 
+<<<<<<< HEAD
 # Fichier sans lignes "# ..." : l'ancien docker-compose (Python) signale souvent "could not parse line 3" avec des commentaires.
 {
   echo "MONGODB_URI=mongodb://mongo:27017/education"
@@ -24,6 +25,33 @@ STORAGE_SECRET=$(openssl rand -base64 32)
   echo "BANKILY_MERCHANT_USERNAME=your-bankily-merchant-username"
   echo "BANKILY_MERCHANT_PASSWORD=your-bankily-merchant-password"
 } > .env.local
+=======
+# Créer le fichier .env.local
+cat > .env.local << EOF
+# Database Connection
+MONGODB_URI=mongodb://mongo:27017/education
+
+# NextAuth Configuration
+NEXTAUTH_URL=https://itkane.net
+NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+
+# Super Admin Credentials
+SUPER_ADMIN_EMAIL=admin@itkane.net
+SUPER_ADMIN_PASSWORD=ChangeMe123!
+SUPER_ADMIN_FIRSTNAME=Super
+SUPER_ADMIN_LASTNAME=Admin
+
+# Storage Configuration
+STORAGE_ROOT=/srv/itekane-storage
+STORAGE_PUBLIC_URL=https://itkane.net/media
+STORAGE_SECRET=$STORAGE_SECRET
+MAX_UPLOAD_SIZE=104857600
+
+# Bankily Payment
+BANKILY_MERCHANT_USERNAME=your-bankily-merchant-username
+BANKILY_MERCHANT_PASSWORD=your-bankily-merchant-password
+EOF
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
 echo "✅ Fichier .env.local créé !"
 echo ""

@@ -34,17 +34,26 @@ services:
     image: nginx:alpine
     container_name: itekane-nginx
     restart: unless-stopped
+<<<<<<< HEAD
     # Host ports: override via a root `.env` file (see compose.env.example) if system nginx/apache already use 80/443.
     ports:
       - "${NGINX_HTTP_PORT:-80}:80"
       - "${NGINX_HTTPS_PORT:-443}:443"
+=======
+    ports:
+      - "80:80"
+      - "443:443"
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - storage-data:/srv/itekane-storage:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
+<<<<<<< HEAD
       # Let’s Encrypt HTTP-01: Certbot écrit ici, Nginx sert /.well-known/acme-challenge/
       - ./nginx/certbot:/var/www/certbot
+=======
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
     networks:
       - itekane-network
     depends_on:

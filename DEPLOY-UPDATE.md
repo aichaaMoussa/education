@@ -37,12 +37,21 @@ git pull origin master
 git pull origin main
 
 # 4. Reconstruire et redémarrer les conteneurs Docker
+<<<<<<< HEAD
 docker compose build app
 docker compose up -d
 
 # 5. Vérifier que tout fonctionne
 docker compose ps
 docker compose logs -f app
+=======
+docker-compose build app
+docker-compose up -d
+
+# 5. Vérifier que tout fonctionne
+docker-compose ps
+docker-compose logs -f app
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 ```
 
 ## Méthode 2 : Sans Git (Copie manuelle)
@@ -71,12 +80,21 @@ cd /srv/my-app  # ou le répertoire de votre projet
 ls -la lib/authOptions.ts lib/auth.ts
 
 # 4. Reconstruire et redémarrer les conteneurs Docker
+<<<<<<< HEAD
 docker compose build app
 docker compose up -d
 
 # 5. Vérifier que tout fonctionne
 docker compose ps
 docker compose logs -f app
+=======
+docker-compose build app
+docker-compose up -d
+
+# 5. Vérifier que tout fonctionne
+docker-compose ps
+docker-compose logs -f app
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 ```
 
 ## Méthode 3 : Script de mise à jour rapide
@@ -107,21 +125,36 @@ fi
 
 # Reconstruire l'image Docker
 echo "🔨 Reconstruction de l'image..."
+<<<<<<< HEAD
 docker compose build app
 
 # Redémarrer les services
 echo "🚀 Redémarrage des services..."
 docker compose up -d
+=======
+docker-compose build app
+
+# Redémarrer les services
+echo "🚀 Redémarrage des services..."
+docker-compose up -d
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
 # Attendre que les services démarrent
 sleep 10
 
 # Vérifier le statut
 echo "✅ Vérification du statut..."
+<<<<<<< HEAD
 docker compose ps
 
 echo "✅ Mise à jour terminée!"
 echo "📊 Voir les logs: docker compose logs -f app"
+=======
+docker-compose ps
+
+echo "✅ Mise à jour terminée!"
+echo "📊 Voir les logs: docker-compose logs -f app"
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 ```
 
 Rendre le script exécutable :
@@ -140,6 +173,7 @@ Utiliser le script :
 
 ```bash
 # Voir les logs en temps réel
+<<<<<<< HEAD
 docker compose logs -f app
 
 # Voir le statut des conteneurs
@@ -150,6 +184,18 @@ docker compose logs app | grep -i error
 
 # Redémarrer seulement l'application
 docker compose restart app
+=======
+docker-compose logs -f app
+
+# Voir le statut des conteneurs
+docker-compose ps
+
+# Vérifier les erreurs
+docker-compose logs app | grep -i error
+
+# Redémarrer seulement l'application
+docker-compose restart app
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
 # Voir l'utilisation des ressources
 docker stats
@@ -157,6 +203,7 @@ docker stats
 
 ## En cas de problème
 
+<<<<<<< HEAD
 **Préférez Docker Compose V2** (`docker compose` avec un espace) plutôt que l’ancien binaire Python `docker-compose` : sur Docker Engine récent, l’ancien `docker-compose up` peut planter avec `KeyError: 'ContainerConfig'`.
 
 ```bash
@@ -224,17 +271,42 @@ SUPER_ADMIN_PASSWORD=VotreMotDePasse
 
 Puis redémarrez : `docker compose up -d` (ou `docker compose restart app`).
 
+=======
+```bash
+# Arrêter tous les services
+docker-compose down
+
+# Voir les logs détaillés
+docker-compose logs app
+
+# Reconstruire depuis zéro (sans cache)
+docker-compose build --no-cache app
+docker-compose up -d
+
+# Accéder au shell du conteneur
+docker-compose exec app sh
+
+# Vérifier les variables d'environnement
+docker-compose exec app env | grep SUPER_ADMIN
+```
+
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 ## Notes importantes
 
 1. **Sauvegarder avant de mettre à jour** :
    ```bash
    # Backup MongoDB
+<<<<<<< HEAD
    docker compose exec mongo mongodump --out /data/backup/$(date +%Y%m%d_%H%M%S)
+=======
+   docker-compose exec mongo mongodump --out /data/backup/$(date +%Y%m%d_%H%M%S)
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
    ```
 
 2. **Vérifier .env.local sur le serveur** :
    Assurez-vous que les variables `SUPER_ADMIN_EMAIL` et `SUPER_ADMIN_PASSWORD` sont bien définies dans `.env.local` sur le serveur.
 
+<<<<<<< HEAD
 3. **Upload de cours / fichiers (`POST /api/upload`)** :
    Le code exige qu’au moins **`STORAGE_SECRET`** ou **`NEXTAUTH_SECRET`** soit défini (sinon erreur 500). Si vous avez déjà `NEXTAUTH_SECRET` dans `.env.local`, l’upload fonctionne sans `STORAGE_SECRET` après déploiement du correctif. Pour un secret dédié au stockage, ajoutez dans **`.env.local` sur le serveur** (format `CLE=valeur`) :
 
@@ -255,4 +327,10 @@ Puis redémarrez : `docker compose up -d` (ou `docker compose restart app`).
    Si vous modifiez `.env.local`, vous devez redémarrer :
    ```bash
    docker compose restart app
+=======
+3. **Redémarrer après modification de .env.local** :
+   Si vous modifiez `.env.local`, vous devez redémarrer :
+   ```bash
+   docker-compose restart app
+>>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
    ```
