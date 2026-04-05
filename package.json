@@ -1,0 +1,53 @@
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "init:roles": "ts-node --project tsconfig.scripts.json scripts/initRoles.ts",
+    "create:admin": "ts-node --project tsconfig.scripts.json scripts/createAdminSimple.ts",
+    "init:super-admin": "ts-node --project tsconfig.scripts.json scripts/initSuperAdmin.ts"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.3.2",
+    "@supabase/supabase-js": "^2.89.0",
+    "@types/formidable": "^3.4.6",
+    "bcryptjs": "^2.4.3",
+    "firebase": "^12.6.0",
+    "firebase-admin": "^13.6.0",
+    "formidable": "^3.5.4",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^4.2.1",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.0.3",
+    "next": "14.2.18",
+    "next-auth": "^4.24.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.8",
+    "react-hook-form": "^7.49.2",
+    "react-hot-toast": "^2.6.0",
+    "react-icons": "^4.12.0",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^18",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.8",
+    "autoprefixer": "^10.4.18",
+    "dotenv": "^17.2.3",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}
