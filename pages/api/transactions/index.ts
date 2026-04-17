@@ -40,6 +40,18 @@ function studentDisplayName(
   return '—';
 }
 
+/** Document transaction après populate + lean (types Mongoose trop larges sinon). */
+type TransactionPopulatedLean = {
+  _id: mongoose.Types.ObjectId;
+  paidAt: Date;
+  walletType: string;
+  phoneNumber: string;
+  amount: number;
+  providerTransactionId?: string;
+  student?: { firstName?: string; lastName?: string } | null;
+  course?: unknown;
+};
+
 function resolveUserObjectId(session: {
   user: { id?: string; email?: string | null };
 }): mongoose.Types.ObjectId | undefined {
@@ -158,23 +170,30 @@ export default async function handler(
       }
     }
 
-    const populated = await Transaction.findById(transaction._id)
+    const populatedRaw = await Transaction.findById(transaction._id)
       .populate('course', 'title category level price')
       .populate('student', 'firstName lastName')
       .lean();
 
-    const studentName = studentDisplayName(session, populated!.student);
+    const populated = populatedRaw as TransactionPopulatedLean | null;
+    if (!populated) {
+      return res.status(500).json({
+        message: 'Transaction introuvable après création',
+      });
+    }
+
+    const studentName = studentDisplayName(session, populated.student);
 
     return res.status(201).json({
       transaction: {
-        _id: populated!._id.toString(),
-        paidAt: populated!.paidAt,
-        walletType: populated!.walletType,
-        phoneNumber: populated!.phoneNumber,
-        amount: populated!.amount,
-        providerTransactionId: populated!.providerTransactionId,
+        _id: populated._id.toString(),
+        paidAt: populated.paidAt,
+        walletType: populated.walletType,
+        phoneNumber: populated.phoneNumber,
+        amount: populated.amount,
+        providerTransactionId: populated.providerTransactionId,
         studentName,
-        course: populated!.course,
+        course: populated.course,
       },
     });
   } catch (error: any) {

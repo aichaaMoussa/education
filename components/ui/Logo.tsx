@@ -9,7 +9,7 @@ interface LogoProps {
 }
 
 /** Logo itkane depuis `public/images/logo-itkane.png` */
-const LOGO_SRC = '/images/logo-itkane.png';
+const LOGO_SRC = '/images/Group.png';
 
 const Logo: React.FC<LogoProps> = ({
   className = '',
