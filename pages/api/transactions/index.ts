@@ -175,7 +175,8 @@ export default async function handler(
       .populate('student', 'firstName lastName')
       .lean();
 
-    const populated = populatedRaw as TransactionPopulatedLean | null;
+    /* Mongoose lean() peut être inféré comme doc | doc[] ; double assertion sécurise le build. */
+    const populated = populatedRaw as unknown as TransactionPopulatedLean | null;
     if (!populated) {
       return res.status(500).json({
         message: 'Transaction introuvable après création',
