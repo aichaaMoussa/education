@@ -71,6 +71,13 @@ export default function Dashboard() {
             revenusTotal: 0,
           });
         }
+      } else if (user?.role?.name === 'apprenant' || user?.role?.name === 'student') {
+        const enrollRes = await fetch('/api/enrollments/me', { credentials: 'include' });
+        if (enrollRes.ok) {
+          const { courseIds } = await enrollRes.json();
+          const n = Array.isArray(courseIds) ? courseIds.length : 0;
+          setStats((prev) => ({ ...prev, courses: n }));
+        }
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -360,6 +367,26 @@ export default function Dashboard() {
                           >
                             <FiBook className="mr-2" />
                             Mes formations
+                          </Button>
+                        </>
+                      )}
+                      {(user?.role?.name === 'apprenant' || user?.role?.name === 'student') && (
+                        <>
+                          <Button
+                            onClick={() => router.push('/apprenant/courses')}
+                            className="w-full justify-start"
+                            variant="primary"
+                          >
+                            <FiShoppingCart className="mr-2" />
+                            Mes formations achetées
+                          </Button>
+                          <Button
+                            onClick={() => router.push('/courses')}
+                            className="w-full justify-start"
+                            variant="outline"
+                          >
+                            <FiBook className="mr-2" />
+                            Catalogue des formations
                           </Button>
                         </>
                       )}

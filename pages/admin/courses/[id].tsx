@@ -50,38 +50,60 @@ interface Course {
 
 export default function CourseDetail() {
   const router = useRouter();
-  const { id } = router.query;
-  const { data: session } = useSession();
+  const idParam = router.query.id;
+  const id =
+    typeof idParam === 'string'
+      ? idParam
+      : Array.isArray(idParam)
+        ? idParam[0]
+        : undefined;
+  const { data: session, status } = useSession();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
 
   useEffect(() => {
-    if (id && session?.user) {
-      fetchCourse();
-    }
-  }, [id, session]);
+    if (!router.isReady) return;
 
-  const fetchCourse = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/admin/courses/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setCourse(data);
-      } else {
+    if (!id) {
+      setLoading(false);
+      setCourse(null);
+      return;
+    }
+
+    if (status === 'loading') return;
+
+    if (!session?.user) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/admin/courses/${id}`, {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCourse(data);
+        } else {
+          showToast.error('Erreur lors du chargement de la formation');
+          router.push('/admin/courses/all');
+        }
+      } catch (error) {
+        console.error('Error fetching course:', error);
         showToast.error('Erreur lors du chargement de la formation');
         router.push('/admin/courses/all');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching course:', error);
-      showToast.error('Erreur lors du chargement de la formation');
-      router.push('/admin/courses/all');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    void fetchCourse();
+  }, [router.isReady, id, status, session?.user, router]);
 
   const handleDownload = (url: string, fileName: string) => {
     const link = document.createElement('a');
@@ -169,7 +191,49 @@ export default function CourseDetail() {
   }
 
   if (!course) {
-    return null;
+    return (
+      <ProtectedRoute requiredPermission={PERMISSIONS.COURSE_READ}>
+        <Head>
+          <title>Formation - Admin</title>
+        </Head>
+        <div className="min-h-screen bg-gray-50">
+          <Header
+            user={{
+              firstName: user.firstName || '',
+              lastName: user.lastName || '',
+              role: { name: user.role?.name || '' },
+            }}
+            onLogout={async () => {
+              const { signOut } = await import('next-auth/react');
+              await signOut({ redirect: false });
+              router.push('/login');
+            }}
+          />
+          <div className="flex">
+            <Sidebar
+              items={sidebarItems}
+              userPermissions={(user?.role?.permissions || []) as any}
+            />
+            <main className="flex-1 p-8">
+              <div className="max-w-7xl mx-auto">
+                <Card className="p-8 text-center">
+                  <p className="text-gray-700 mb-4">
+                    Impossible d&apos;afficher cette formation. Retournez à la liste
+                    ou vérifiez que l&apos;URL est correcte.
+                  </p>
+                  <Button
+                    variant="primary"
+                    onClick={() => router.push('/admin/courses/all')}
+                  >
+                    Toutes les formations
+                  </Button>
+                </Card>
+              </div>
+            </main>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
   }
 
   return (

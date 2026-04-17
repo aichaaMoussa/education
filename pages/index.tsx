@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { 
   FiBook, FiUsers, FiAward, FiPlayCircle, FiCheckCircle, 
   FiStar, FiArrowRight, FiTrendingUp, FiShield, FiClock,
-  FiVideo, FiFileText, FiHelpCircle, FiBarChart2, FiX, FiUser, FiLogOut
+  FiVideo, FiFileText, FiHelpCircle, FiBarChart2, FiX, FiUser, FiLogOut, FiCpu,
 } from 'react-icons/fi';
 import { 
   FaGraduationCap, FaChalkboardTeacher, FaUserGraduate, 
@@ -50,16 +50,12 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-<<<<<<< HEAD
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
-=======
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
-<<<<<<< HEAD
   useEffect(() => {
     if (status !== 'authenticated') {
       setEnrolledCourseIds([]);
@@ -73,8 +69,6 @@ export default function Home() {
       .catch(() => setEnrolledCourseIds([]));
   }, [status]);
 
-=======
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   const fetchCourses = async () => {
     try {
       setLoading(true);
@@ -252,8 +246,8 @@ export default function Home() {
         {/* Navigation */}
         <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Logo size="md" />
+            <div className="flex justify-between items-center min-h-[8.5rem] py-2 sm:min-h-[9.5rem] sm:py-3">
+              <Logo size="lg" />
               
               <div className="hidden md:flex items-center space-x-8">
                 <Link href="#features" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
@@ -264,6 +258,12 @@ export default function Home() {
                 </Link>
                 <Link href="#about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                   À propos
+                </Link>
+                <Link
+                  href="#evaluation-ia"
+                  className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                >
+                  Évaluation IA
                 </Link>
               </div>
 
@@ -402,6 +402,63 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="absolute top-8 left-8 w-full h-full bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl opacity-20 blur-xl"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Test de niveau — page d&apos;accueil (plus dans le dashboard) */}
+        <section
+          id="evaluation-ia"
+          className="py-14 bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 text-white border-y border-indigo-800/50"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+              <div className="space-y-3 max-w-2xl">
+                <div className="inline-flex items-center gap-2 text-indigo-200 text-sm font-medium">
+                  <FiCpu className="w-4 h-4 shrink-0" aria-hidden />
+                  <span>Évaluation assistée par IA</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                  Identifiez votre niveau avant de choisir une formation
+                </h2>
+                <p className="text-indigo-100/95 text-base leading-relaxed">
+                  Un test rapide en informatique vous donne un niveau indicatif et des conseils pour
+                  viser une formation adaptée à vos acquis — directement depuis la page d&apos;accueil.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+                {status === 'authenticated' && session ? (
+                  <Link href="/apprenant/test-niveau">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="bg-white text-indigo-900 hover:bg-indigo-50 border-0 w-full sm:w-auto justify-center shadow-lg"
+                    >
+                      Passer le test de niveau
+                      <FiArrowRight className="ml-2 w-5 h-5" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/login?returnUrl=${encodeURIComponent('/apprenant/test-niveau')}`}
+                  >
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="bg-white text-indigo-900 hover:bg-indigo-50 border-0 w-full sm:w-auto justify-center shadow-lg"
+                    >
+                      Se connecter pour le test
+                      <FiArrowRight className="ml-2 w-5 h-5" />
+                    </Button>
+                  </Link>
+                )}
+                <Link
+                  href="#courses-section"
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-lg border-2 border-white/35 text-white font-semibold hover:bg-white/10 transition-colors min-h-[48px]"
+                >
+                  Voir les formations
+                </Link>
               </div>
             </div>
           </div>
@@ -723,25 +780,38 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-24 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <FaGraduationCap className="w-16 h-16 text-white mx-auto mb-6" />
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Prêt à commencer votre parcours d'apprentissage ?
+        {/* CTA Section — fond unie, mise en page aérée */}
+        <section className="relative py-20 sm:py-28 bg-slate-900 overflow-hidden">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div
+              className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 text-white mb-8 ring-1 ring-white/15 shadow-2xl"
+              aria-hidden
+            >
+              <FaGraduationCap className="w-9 h-9 sm:w-10 sm:h-10" />
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight mb-5">
+              Prêt à commencer votre parcours d&apos;apprentissage ?
             </h2>
-            <p className="text-xl text-blue-100 mb-8">
-              Rejoignez des milliers d'apprenants qui développent leurs compétences avec itkane
+            <p className="text-lg sm:text-xl text-white/75 leading-relaxed mb-10 max-w-2xl mx-auto">
+              Rejoignez des milliers d&apos;apprenants qui développent leurs compétences avec itkane.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/register">
-                <Button variant="primary" size="lg" className="bg-white text-blue-600 hover:bg-gray-100 flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+              <Link href="/register" className="sm:flex-1 sm:max-w-xs">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full rounded-xl bg-white text-slate-900 font-semibold shadow-lg shadow-black/25 hover:bg-white/95 hover:shadow-xl hover:shadow-black/30 transition-all duration-200 border-0 py-4 flex items-center justify-center gap-2"
+                >
                   <span>Créer un compte gratuit</span>
-                  <FiArrowRight className="w-5 h-5" />
+                  <FiArrowRight className="w-5 h-5 shrink-0" />
                 </Button>
               </Link>
-              <Link href="/courses">
-                <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-blue-600">
+              <Link href="/courses" className="sm:flex-1 sm:max-w-xs">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full rounded-xl border-2 border-white/35 bg-transparent text-white font-semibold hover:bg-white/10 hover:border-white/55 py-4 transition-all duration-200"
+                >
                   Voir les formations
                 </Button>
               </Link>
@@ -754,9 +824,8 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
-                <div className="flex items-center space-x-2 mb-4">
-                  <FaGraduationCap className="text-2xl text-blue-400" />
-                  <span className="text-xl font-bold text-white">itkane</span>
+                <div className="mb-4 inline-flex rounded-xl bg-white px-5 py-4 shadow-md">
+                  <Logo size="md" />
                 </div>
                 <p className="text-sm text-gray-400">
                   La plateforme d'apprentissage en ligne pour développer vos compétences et atteindre vos objectifs.
@@ -767,6 +836,7 @@ export default function Home() {
                 <h4 className="text-white font-semibold mb-4">Navigation</h4>
                 <ul className="space-y-2 text-sm">
                   <li><Link href="/courses" className="hover:text-blue-400 transition-colors">Formations</Link></li>
+                  <li><Link href="#evaluation-ia" className="hover:text-blue-400 transition-colors">Évaluation IA</Link></li>
                   <li><Link href="#features" className="hover:text-blue-400 transition-colors">Fonctionnalités</Link></li>
                   <li><Link href="#categories" className="hover:text-blue-400 transition-colors">Catégories</Link></li>
                   <li><Link href="/register" className="hover:text-blue-400 transition-colors">S'inscrire</Link></li>
@@ -977,7 +1047,6 @@ export default function Home() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-<<<<<<< HEAD
                   {enrolledCourseIds.includes(selectedCourse._id) ? (
                     <>
                       <Button
@@ -1019,26 +1088,6 @@ export default function Home() {
                       </Button>
                     </>
                   )}
-=======
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={handleBuyNow}
-                    className="flex-1 flex items-center justify-center space-x-2 py-4 text-lg font-semibold"
-                  >
-                    <span>Acheter maintenant</span>
-                    <FiArrowRight className="w-5 h-5" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={handleAddToCart}
-                    className="flex-1 flex items-center justify-center space-x-2 py-4 text-lg font-semibold border-2"
-                  >
-                    <FiCheckCircle className="w-5 h-5" />
-                    <span>Ajouter au panier</span>
-                  </Button>
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
                 </div>
               </div>
             </div>

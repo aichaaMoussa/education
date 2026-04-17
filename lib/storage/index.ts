@@ -19,7 +19,6 @@ export interface StorageMetadata {
 
 const STORAGE_ROOT = process.env.STORAGE_ROOT || '/srv/itekane-storage';
 const STORAGE_PUBLIC_URL = process.env.STORAGE_PUBLIC_URL || 'https://itkane.net/media';
-<<<<<<< HEAD
 const MAX_UPLOAD_SIZE = parseInt(process.env.MAX_UPLOAD_SIZE || '104857600', 10);
 
 /** Vérifie que le stockage est explicitement activé (évite uploads accidentels en prod). */
@@ -31,11 +30,6 @@ function isStorageGateOpen(): boolean {
   return Boolean(nextAuth);
 }
 
-=======
-const STORAGE_SECRET = process.env.STORAGE_SECRET || '';
-const MAX_UPLOAD_SIZE = parseInt(process.env.MAX_UPLOAD_SIZE || '104857600', 10);
-
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 function sanitizeFilename(filename: string): string {
   return filename
     .replace(/[^a-zA-Z0-9._-]/g, '_')
@@ -78,15 +72,10 @@ export async function uploadObject(
     throw new Error(`File size exceeds maximum allowed size of ${MAX_UPLOAD_SIZE} bytes`);
   }
 
-<<<<<<< HEAD
   if (!isStorageGateOpen()) {
     throw new Error(
       'Stockage non configuré : ajoutez STORAGE_SECRET ou NEXTAUTH_SECRET dans l’environnement.'
     );
-=======
-  if (!STORAGE_SECRET) {
-    throw new Error('STORAGE_SECRET is not configured');
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   }
 
   const key = generateKey(originalFilename, mimeType);
@@ -136,15 +125,12 @@ export async function replaceObject(
     throw new Error(`File size exceeds maximum allowed size of ${MAX_UPLOAD_SIZE} bytes`);
   }
 
-<<<<<<< HEAD
   if (!isStorageGateOpen()) {
     throw new Error(
       'Stockage non configuré : ajoutez STORAGE_SECRET ou NEXTAUTH_SECRET dans l’environnement.'
     );
   }
 
-=======
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   const objectPath = getObjectPath(bucket, key);
   const objectDir = dirname(objectPath);
 

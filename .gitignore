@@ -43,9 +43,6 @@ next-env.d.ts
 # Temporary files
 tmp/
 *.tmp
-<<<<<<< HEAD
 
 # Let’s Encrypt (données Certbot hors dépôt)
 /certbot/conf/
-=======
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4

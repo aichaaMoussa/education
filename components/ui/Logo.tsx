@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 interface LogoProps {
@@ -7,54 +8,50 @@ interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const Logo: React.FC<LogoProps> = ({ className = '', showText = true, size = 'md' }) => {
-  const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-12 h-12',
-  };
+/** Logo itkane depuis `public/images/logo-itkane.png` */
+const LOGO_SRC = '/images/logo-itkane.png';
+
+const Logo: React.FC<LogoProps> = ({
+  className = '',
+  showText = false,
+  size = 'md',
+}) => {
+  const heightClass = {
+    sm: 'h-16 sm:h-20',
+    md: 'h-20 sm:h-24 md:h-28',
+    lg: 'h-28 sm:h-32 md:h-36',
+  }[size];
+
+  const maxW = {
+    sm: 'max-w-[min(100%,340px)]',
+    md: 'max-w-[min(100%,420px)]',
+    lg: 'max-w-[min(100%,520px)]',
+  }[size];
 
   const textSizes = {
-    sm: 'text-lg',
-    md: 'text-2xl',
-    lg: 'text-3xl',
+    sm: 'text-2xl',
+    md: 'text-4xl',
+    lg: 'text-5xl',
   };
 
   return (
-    <Link href="/" className={`flex items-center space-x-2 group ${className}`}>
-      {/* Logo SVG personnalisé pour itkane */}
-      <div className={`${sizeClasses[size]} bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105 relative overflow-hidden`}>
-        {/* Effet de brillance */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-        <svg
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full relative z-10 p-2"
-        >
-          {/* Design moderne "itkane" - Lettre "i" avec point */}
-          <circle cx="20" cy="8" r="2.5" fill="white" />
-          {/* Barre verticale du "i" */}
-          <rect x="18" y="12" width="4" height="16" rx="2" fill="white" />
-          {/* Ligne courbe stylisée pour "tkane" */}
-          <path
-            d="M20 28 C22 28, 24 27, 26 26 C28 25, 30 23, 30 21 C30 19, 28 17, 26 17 C24 17, 22 18, 20 20"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-          {/* Petite étoile décorative */}
-          <path
-            d="M28 14 L28.5 15.5 L30 15.5 L28.8 16.5 L29.2 18 L28 17 L26.8 18 L27.2 16.5 L26 15.5 L27.5 15.5 Z"
-            fill="white"
-            opacity="0.8"
-          />
-        </svg>
-      </div>
+    <Link
+      href="/"
+      className={`inline-flex items-center gap-3 group ${className}`}
+    >
+      <Image
+        src={LOGO_SRC}
+        alt="itkane"
+        width={520}
+        height={128}
+        className={`${heightClass} w-auto ${maxW} object-contain object-left shrink-0`}
+        sizes="(max-width: 640px) 300px, (max-width: 1024px) 380px, 440px"
+        priority
+      />
       {showText && (
-        <span className={`${textSizes[size]} font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-indigo-700 transition-all duration-300`}>
+        <span
+          className={`${textSizes[size]} font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-indigo-700 transition-all duration-300`}
+        >
           itkane
         </span>
       )}

@@ -32,14 +32,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ message: 'ID de la formation requis' });
     }
 
-    // Récupérer la formation avec toutes les informations
-    const course = await Course.findById(id)
+    const courseDoc = await Course.findById(id)
       .populate('instructor', 'firstName lastName email')
-      .populate('approvedBy', 'firstName lastName email');
+      .populate('approvedBy', 'firstName lastName email')
+      .lean();
 
-    if (!course) {
+    if (!courseDoc) {
       return res.status(404).json({ message: 'Formation non trouvée' });
     }
+
+    const course = JSON.parse(JSON.stringify(courseDoc));
 
     return res.status(200).json(course);
   } catch (error: any) {

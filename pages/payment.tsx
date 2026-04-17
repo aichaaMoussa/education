@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react';
 import { normalizeMediaUrl } from '../lib/utils/url';
 import Head from 'next/head';
 import Link from 'next/link';
-<<<<<<< HEAD
 import { jsPDF } from 'jspdf';
 import {
   FiCreditCard,
@@ -17,11 +16,7 @@ import {
   FiX,
   FiDownload,
   FiBookOpen,
-=======
-import { 
-  FiCreditCard, FiLock, FiCheckCircle, FiArrowLeft, 
-  FiDollarSign, FiShield, FiCheck
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
+  FiAlertCircle,
 } from 'react-icons/fi';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -52,7 +47,6 @@ interface PaymentMethod {
   description: string;
 }
 
-<<<<<<< HEAD
 interface InvoiceTransaction {
   _id: string;
   paidAt: string;
@@ -131,8 +125,6 @@ function exportReceiptPdf(tx: InvoiceTransaction) {
   doc.save(`recu-paiement-${tx._id}.pdf`);
 }
 
-=======
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 const paymentMethods: PaymentMethod[] = [
   {
     id: 'wallet',
@@ -162,23 +154,25 @@ const paymentMethods: PaymentMethod[] = [
 
 function PaymentPage() {
   const router = useRouter();
-<<<<<<< HEAD
   const { status } = useSession();
-=======
-  const { data: session } = useSession();
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   const { courseId } = router.query;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-<<<<<<< HEAD
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [invoice, setInvoice] = useState<InvoiceTransaction | null>(null);
+  const [paymentErrorOpen, setPaymentErrorOpen] = useState(false);
 
-=======
-  
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
+  const openPaymentErrorModal = () => {
+    setPaymentErrorOpen(true);
+    setInvoiceModalOpen(false);
+  };
+
+  const closePaymentErrorModal = () => {
+    setPaymentErrorOpen(false);
+  };
+
   // États pour Bankily
   const [phoneNumber, setPhoneNumber] = useState('');
   const [passcode, setPasscode] = useState('');
@@ -186,9 +180,9 @@ function PaymentPage() {
   const [authenticating, setAuthenticating] = useState(false);
   
   const MERCHANT_CODE = '3456';
+  const BANKILY_ICON_SRC = '/icons/bankily.png';
 
   useEffect(() => {
-<<<<<<< HEAD
     if (!courseId || typeof courseId !== 'string') {
       router.push('/');
       return;
@@ -241,35 +235,6 @@ function PaymentPage() {
       cancelled = true;
     };
   }, [courseId, router, status]);
-=======
-    if (courseId) {
-      fetchCourse();
-    } else {
-      router.push('/');
-    }
-  }, [courseId]);
-
-  const fetchCourse = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/courses`);
-      if (response.ok) {
-        const courses = await response.json();
-        const foundCourse = courses.find((c: Course) => c._id === courseId);
-        if (foundCourse) {
-          setCourse(foundCourse);
-        } else {
-          router.push('/');
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching course:', error);
-      router.push('/');
-    } finally {
-      setLoading(false);
-    }
-  };
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
   // Authentification Bankily (utilise les credentials du commerçant, pas du client)
   const handleBankilyAuth = async () => {
@@ -306,7 +271,6 @@ function PaymentPage() {
   const handlePayment = async () => {
     if (!selectedPaymentMethod || !course) return;
 
-<<<<<<< HEAD
     const saveTransaction = async (params: {
       walletType: string;
       phoneNumber: string;
@@ -326,60 +290,39 @@ function PaymentPage() {
       });
       const recordData = await recordRes.json().catch(() => ({}));
       if (!recordRes.ok) {
-        showToast.error(
-          recordData.message ||
-            'Le paiement a réussi mais l’enregistrement a échoué. Contactez le support.'
-        );
+        openPaymentErrorModal();
         return false;
       }
+      closePaymentErrorModal();
       showToast.success('Paiement reçu');
       setInvoice(recordData.transaction as InvoiceTransaction);
       setInvoiceModalOpen(true);
       return true;
     };
 
-=======
-    // Si Bankily est sélectionné, vérifier l'authentification
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
     if (selectedPaymentMethod === 'bankily') {
       if (!phoneNumber || !passcode) {
-        showToast.error('Veuillez remplir le numéro de téléphone et le passcode');
+        openPaymentErrorModal();
         return;
       }
 
       setProcessing(true);
-<<<<<<< HEAD
       try {
         let token = accessToken;
         if (!token) {
-=======
-      
-      try {
-        // Si pas de token, authentifier d'abord avec les credentials du COMMERÇANT
-        let token = accessToken;
-        if (!token) {
-          // L'authentification utilise les credentials du COMMERÇANT (stockés côté serveur)
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
           const authResponse = await fetch('/api/payment/bankily/auth', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-<<<<<<< HEAD
             body: JSON.stringify({}),
-=======
-            body: JSON.stringify({}), // Pas besoin de credentials côté client
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
           });
 
           const authData = await authResponse.json();
 
           if (!authResponse.ok) {
-            showToast.error(authData.message || 'Erreur d\'authentification');
-<<<<<<< HEAD
-=======
+            openPaymentErrorModal();
             setProcessing(false);
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
             return;
           }
 
@@ -387,14 +330,8 @@ function PaymentPage() {
           setAccessToken(token);
         }
 
-<<<<<<< HEAD
         const operationId = `OP-${course._id}-${Date.now()}`;
 
-=======
-        // Effectuer le paiement
-        const operationId = `OP-${course._id}-${Date.now()}`;
-        
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
         const response = await fetch('/api/payment/bankily/pay', {
           method: 'POST',
           headers: {
@@ -412,26 +349,24 @@ function PaymentPage() {
 
         const data = await response.json();
 
-<<<<<<< HEAD
         const bankilyOk =
           data.success === true || String(data.errorCode) === '0';
 
         if (!bankilyOk) {
-          showToast.error(
-            data.message || data.errorMessage || 'Erreur lors du paiement'
-          );
+          openPaymentErrorModal();
           return;
         }
 
-        await saveTransaction({
+        const saved = await saveTransaction({
           walletType: 'bankily',
           phoneNumber,
           amount: course.price,
           providerTransactionId: data.transactionId,
         });
+        if (!saved) return;
       } catch (error: unknown) {
         console.error('Payment error:', error);
-        showToast.error('Erreur lors du paiement');
+        openPaymentErrorModal();
       } finally {
         setProcessing(false);
       }
@@ -440,39 +375,17 @@ function PaymentPage() {
 
     setProcessing(true);
     try {
-      await saveTransaction({
+      const saved = await saveTransaction({
         walletType: selectedPaymentMethod,
         phoneNumber: '-',
         amount: course.price,
       });
+      if (!saved) return;
     } catch (error: unknown) {
       console.error('Payment error:', error);
-      showToast.error('Erreur lors du paiement');
+      openPaymentErrorModal();
     } finally {
       setProcessing(false);
-=======
-        if (!response.ok || !data.success) {
-          showToast.error(data.message || 'Erreur lors du paiement');
-          setProcessing(false);
-          return;
-        }
-
-        showToast.success('Paiement effectué avec succès !');
-        // Rediriger vers la page de confirmation
-        router.push(`/payment/success?courseId=${course._id}&transactionId=${data.transactionId}`);
-      } catch (error: any) {
-        console.error('Payment error:', error);
-        showToast.error('Erreur lors du paiement');
-        setProcessing(false);
-      }
-    } else {
-      // Autres méthodes de paiement (à implémenter)
-      setProcessing(true);
-      setTimeout(() => {
-        setProcessing(false);
-        router.push(`/payment/success?courseId=${course._id}`);
-      }, 2000);
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
     }
   };
 
@@ -499,7 +412,7 @@ function PaymentPage() {
         {/* Navigation */}
         <nav className="bg-white shadow-sm border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
+            <div className="flex justify-between items-center min-h-[8rem] py-3 sm:min-h-[8.5rem]">
               <Logo size="md" />
             </div>
           </div>
@@ -534,6 +447,7 @@ function PaymentPage() {
                   </h2>
                   {paymentMethods.map((method) => {
                     const IconComponent = method.iconComponent;
+                    const isBankily = method.id === 'bankily';
                     return (
                       <button
                         key={method.id}
@@ -551,15 +465,29 @@ function PaymentPage() {
                           <div className="flex items-center space-x-4">
                             <div
                               className={`
-                                p-3 rounded-lg
+                                p-3 rounded-lg flex items-center justify-center
                                 ${
-                                  selectedPaymentMethod === method.id
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-100 text-gray-600'
+                                  isBankily
+                                    ? selectedPaymentMethod === method.id
+                                      ? 'bg-white ring-2 ring-blue-600'
+                                      : 'bg-gray-100'
+                                    : selectedPaymentMethod === method.id
+                                      ? 'bg-blue-600 text-white'
+                                      : 'bg-gray-100 text-gray-600'
                                 }
                               `}
                             >
-                              <IconComponent className="w-6 h-6" />
+                              {isBankily ? (
+                                <img
+                                  src={BANKILY_ICON_SRC}
+                                  alt="Bankily"
+                                  className="h-8 w-8 object-contain"
+                                  width={32}
+                                  height={32}
+                                />
+                              ) : (
+                                <IconComponent className="w-6 h-6" />
+                              )}
                             </div>
                           <div>
                             <h3 className="text-lg font-semibold text-gray-900">
@@ -587,8 +515,15 @@ function PaymentPage() {
                 {selectedPaymentMethod === 'bankily' && (
                   <div className="mt-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-xl">
                     <div className="mb-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">
-                        Paiement via Bankily B-PAY
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3 flex-wrap">
+                        <img
+                          src={BANKILY_ICON_SRC}
+                          alt="Bankily"
+                          className="h-10 w-10 object-contain shrink-0"
+                          width={40}
+                          height={40}
+                        />
+                        <span>Paiement via Bankily B-PAY</span>
                       </h3>
                       
                       {/* Merchant Code and Amount - Informations à utiliser dans Bankily */}
@@ -772,7 +707,6 @@ function PaymentPage() {
           </div>
         </div>
       </div>
-<<<<<<< HEAD
 
       {invoiceModalOpen && invoice && (
         <div
@@ -893,8 +827,51 @@ function PaymentPage() {
           </div>
         </div>
       )}
-=======
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
+
+      {paymentErrorOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="payment-error-title"
+        >
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto relative">
+            <button
+              type="button"
+              onClick={closePaymentErrorModal}
+              className="absolute top-4 right-4 p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+              aria-label="Fermer"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+
+            <div className="p-8 pt-14">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-3 rounded-full bg-red-100 text-red-600">
+                  <FiAlertCircle className="w-8 h-8" />
+                </div>
+                <div>
+                  <h2
+                    id="payment-error-title"
+                    className="text-2xl font-bold text-gray-900"
+                  >
+                    Erreur lors du paiement
+                  </h2>
+                </div>
+              </div>
+
+              <Button
+                variant="primary"
+                size="lg"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={closePaymentErrorModal}
+              >
+                Compris
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

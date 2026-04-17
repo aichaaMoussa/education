@@ -133,14 +133,9 @@ export default async function handler(
     console.log('💳 [BANKILY PAY] - 4 = Operation ID required');
     console.log('💳 [BANKILY PAY] - 1 = other error');
     console.log('💳 [BANKILY PAY] Code reçu:', data.errorCode);
-<<<<<<< HEAD
     const isSuccessCode = String(data.errorCode) === '0';
 
     if (!response.ok || !isSuccessCode) {
-=======
-    
-    if (!response.ok || data.errorCode !== '0') {
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
       console.error('❌ [BANKILY PAY] Étape 9: Paiement échoué');
       console.error('❌ [BANKILY PAY] HTTP Status:', response.status);
       console.error('❌ [BANKILY PAY] Error Code:', data.errorCode);

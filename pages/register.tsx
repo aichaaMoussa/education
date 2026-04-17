@@ -92,7 +92,7 @@ export default function Register() {
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <div className="flex justify-center mb-4">
-              <Logo size="lg" showText={true} />
+              <Logo size="lg" />
             </div>
             <h2 className="text-2xl font-semibold text-gray-700 mt-2">Inscription</h2>
             <p className="mt-2 text-sm text-gray-600">

@@ -7,6 +7,11 @@ import Enrollment from '@/models/Enrollment';
 import { resolveStudentObjectIdFromSession } from '@/lib/resolveStudentObjectId';
 import '@/models';
 
+/** Rend le document Mongoose sérialisable en JSON (ObjectId → string, dates ISO, etc.) */
+function leanToJson<T>(doc: T): T {
+  return JSON.parse(JSON.stringify(doc)) as T;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -60,14 +65,16 @@ export default async function handler(
         unknown
       >;
 
-      return res.status(200).json({
+      const payload = {
         ...rest,
         isEnrolled: false,
         lessonCount,
         resourcesPreview: { pdfCount, videoCount, quizCount },
         resources: { pdfs: [], videos: [], quizzes: [] },
         lessons: [],
-      });
+      };
+
+      return res.status(200).json(leanToJson(payload));
     }
 
     const full = await Course.findById(id)
@@ -83,10 +90,12 @@ export default async function handler(
       return res.status(404).json({ message: 'Formation introuvable' });
     }
 
-    return res.status(200).json({
+    const payload = {
       ...full,
       isEnrolled: true,
-    });
+    };
+
+    return res.status(200).json(leanToJson(payload));
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Erreur';
     console.error('GET /api/courses/[id]:', error);

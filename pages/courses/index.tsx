@@ -29,11 +29,7 @@ interface Course {
 
 export default function Courses() {
   const router = useRouter();
-<<<<<<< HEAD
   const { data: session, status } = useSession();
-=======
-  const { data: session } = useSession();
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   const [courses, setCourses] = useState<Course[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,16 +38,12 @@ export default function Courses() {
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 10000 });
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'newest' | 'price-low' | 'price-high' | 'popular'>('newest');
-<<<<<<< HEAD
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
-=======
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
-<<<<<<< HEAD
   useEffect(() => {
     if (status !== 'authenticated') {
       setEnrolledCourseIds([]);
@@ -65,8 +57,6 @@ export default function Courses() {
       .catch(() => setEnrolledCourseIds([]));
   }, [status]);
 
-=======
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
   const fetchCourses = async () => {
     try {
       setLoading(true);
@@ -359,7 +349,6 @@ export default function Courses() {
                         <Logo size="lg" showText={false} className="opacity-50" />
                       </div>
                     )}
-<<<<<<< HEAD
                     <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
                       <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold text-blue-600">
                         {course.category}
@@ -369,12 +358,6 @@ export default function Courses() {
                           Inscrit
                         </span>
                       )}
-=======
-                    <div className="absolute top-4 right-4">
-                      <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold text-blue-600">
-                        {course.category}
-                      </span>
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
                     </div>
                     <div className="absolute bottom-4 left-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
@@ -429,13 +412,9 @@ export default function Courses() {
                       </div>
                       <Link href={`/courses/${course._id}`}>
                         <Button variant="primary" size="sm" className="group-hover:bg-indigo-600">
-<<<<<<< HEAD
                           {enrolledCourseIds.includes(course._id)
                             ? 'Accéder au cours'
                             : 'Voir plus'}
-=======
-                          Voir plus
->>>>>>> b00e06faa2b3d33ad952c46382d13a7cb7d1b6a4
                           <FiArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                       </Link>

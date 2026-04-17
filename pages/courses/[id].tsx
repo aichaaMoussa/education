@@ -85,24 +85,35 @@ function isQuizRef(q: unknown): q is QuizRef {
 
 export default function CoursePublicPage() {
   const router = useRouter();
-  const { id } = router.query;
+  const idParam = router.query.id;
+  const id =
+    typeof idParam === 'string'
+      ? idParam
+      : Array.isArray(idParam)
+        ? idParam[0]
+        : undefined;
   const { data: session, status } = useSession();
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id || typeof id !== 'string') return;
+    if (!router.isReady || !id) return;
+    /** Attendre la session pour que l’API détecte correctement l’inscription et renvoie leçons / médias */
+    if (status === 'loading') return;
 
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/courses/${id}`);
+        const res = await fetch(`/api/courses/${id}`, {
+          credentials: 'include',
+          cache: 'no-store',
+        });
         if (!res.ok) {
           showToast.error('Formation introuvable');
           router.push('/courses');
           return;
         }
-        const data = await res.json();
+        const data = (await res.json()) as CourseDetail;
         setCourse(data);
       } catch {
         showToast.error('Erreur de chargement');
@@ -112,12 +123,31 @@ export default function CoursePublicPage() {
       }
     };
 
-    load();
-  }, [id, router, status]);
+    void load();
+  }, [router.isReady, id, status, router]);
 
   const user = session?.user;
 
-  if (loading || !id) {
+  if (!router.isReady || status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
+  if (!id) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+        <p className="text-gray-700 mb-4">Formation introuvable.</p>
+        <Link href="/courses" className="text-blue-600 hover:underline">
+          Retour au catalogue
+        </Link>
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
@@ -126,7 +156,16 @@ export default function CoursePublicPage() {
   }
 
   if (!course) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+        <p className="text-gray-700 mb-4 text-center">
+          Impossible d&apos;afficher les données de cette formation.
+        </p>
+        <Link href="/courses" className="text-blue-600 hover:underline font-medium">
+          Retour au catalogue
+        </Link>
+      </div>
+    );
   }
 
   const levelLabel =
