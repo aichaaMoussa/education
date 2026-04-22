@@ -12,6 +12,7 @@
     "init:super-admin": "ts-node --project tsconfig.scripts.json scripts/initSuperAdmin.ts"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.3.2",
     "@supabase/supabase-js": "^2.89.0",
     "@types/formidable": "^3.4.6",
@@ -31,6 +32,7 @@
     "react-hook-form": "^7.49.2",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^4.12.0",
+    "sharp": "^0.33.5",
     "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },

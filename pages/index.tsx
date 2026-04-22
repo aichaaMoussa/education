@@ -156,8 +156,8 @@ export default function Home() {
       icon: <FiVideo className="w-8 h-8" />,
       title: 'Vidéos Interactives',
       description: 'Apprenez avec des vidéos de qualité professionnelle',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      color: 'text-platform-600',
+      bgColor: 'bg-platform-400/15',
     },
     {
       icon: <FiFileText className="w-8 h-8" />,
@@ -184,8 +184,8 @@ export default function Home() {
       icon: <FaChalkboardTeacher className="w-8 h-8" />,
       title: 'Formateurs Experts',
       description: 'Apprenez auprès de professionnels expérimentés',
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100',
+      color: 'text-platform-600',
+      bgColor: 'bg-platform-400/12',
     },
     {
       icon: <FaCertificate className="w-8 h-8" />,
@@ -204,11 +204,11 @@ export default function Home() {
   ];
 
   const categories = [
-    { name: 'Développement Web', icon: <FaLaptopCode className="w-6 h-6" />, color: 'bg-blue-500' },
+    { name: 'Développement Web', icon: <FaLaptopCode className="w-6 h-6" />, color: 'bg-platform-200/200' },
     { name: 'Data Science', icon: <FaChartLine className="w-6 h-6" />, color: 'bg-green-500' },
     { name: 'Design', icon: <HiLightBulb className="w-6 h-6" />, color: 'bg-purple-500' },
     { name: 'Marketing', icon: <FiTrendingUp className="w-6 h-6" />, color: 'bg-orange-500' },
-    { name: 'Business', icon: <HiAcademicCap className="w-6 h-6" />, color: 'bg-indigo-500' },
+    { name: 'Business', icon: <HiAcademicCap className="w-6 h-6" />, color: 'bg-platform-600' },
     { name: 'Photographie', icon: <FiAward className="w-6 h-6" />, color: 'bg-pink-500' },
   ];
 
@@ -250,18 +250,18 @@ export default function Home() {
               <Logo size="lg" />
               
               <div className="hidden md:flex items-center space-x-8">
-                <Link href="#features" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+                <Link href="#features" className="text-gray-700 hover:text-platform-600 transition-colors font-medium">
                   Fonctionnalités
                 </Link>
-                <Link href="#categories" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+                <Link href="#categories" className="text-gray-700 hover:text-platform-600 transition-colors font-medium">
                   Catégories
                 </Link>
-                <Link href="#about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+                <Link href="#about" className="text-gray-700 hover:text-platform-600 transition-colors font-medium">
                   À propos
                 </Link>
                 <Link
                   href="#evaluation-ia"
-                  className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                  className="text-gray-700 hover:text-platform-600 transition-colors font-medium"
                 >
                   Évaluation IA
                 </Link>
@@ -271,8 +271,8 @@ export default function Home() {
                 {status === 'authenticated' && session?.user ? (
                   <>
                     <div className="flex items-center space-x-2">
-                      <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
-                        <FiUser className="w-4 h-4 text-blue-600" />
+                      <div className="flex items-center justify-center w-8 h-8 bg-platform-400/15 rounded-full">
+                        <FiUser className="w-4 h-4 text-platform-600" />
                       </div>
                       <div className="hidden md:block text-sm">
                         <p className="text-gray-700 font-medium">
@@ -298,7 +298,7 @@ export default function Home() {
                   <>
                     <Link
                       href="/login"
-                      className="px-4 py-2 text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                      className="px-4 py-2 text-sm text-gray-700 hover:text-platform-600 transition-colors font-medium"
                     >
                       Connexion
                     </Link>
@@ -316,23 +316,25 @@ export default function Home() {
         </nav>
 
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-20 pb-32">
+        <section className="relative overflow-hidden bg-gradient-to-br from-platform-200/30 via-white to-platform-400/10 pt-20 pb-32">
           <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
           {/* Decorative animated blobs */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-          <div className="absolute top-0 left-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-platform-400/30 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-platform-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-platform-400/25 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8">
-                <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-medium">
-                  <FaRocket className="w-4 h-4" />
-                  <span>Plateforme #1 d'apprentissage en ligne</span>
+                <div className="inline-flex items-center space-x-2 rounded-full bg-platform-400/15 px-4 py-2 text-sm font-medium ring-1 ring-platform-600/15">
+                  <FaRocket className="h-4 w-4 shrink-0 text-platform-600" aria-hidden />
+                  <span className="bg-[linear-gradient(90deg,var(--platform-950)_0%,var(--platform-800)_22%,var(--platform-600)_44%,var(--platform-400)_72%,var(--platform-200)_100%)] bg-clip-text font-semibold text-transparent">
+                    Plateforme #1 d&apos;apprentissage en ligne
+                  </span>
                 </div>
                 
                 <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
                   Apprenez sans limites avec{' '}
-                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-platform-800 via-platform-600 to-platform-400 bg-clip-text text-transparent">
                     itkane
                   </span>
                 </h1>
@@ -361,7 +363,7 @@ export default function Home() {
                   <div className="flex items-center space-x-2">
                     <div className="flex -space-x-2">
                       {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 border-2 border-white"></div>
+                        <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-platform-400 to-platform-800 border-2 border-white"></div>
                       ))}
                     </div>
                     <div>
@@ -383,8 +385,8 @@ export default function Home() {
                   <div className="bg-white rounded-2xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-300">
                     <div className="space-y-4">
                       <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 rounded-full p-3">
-                          <FaGraduationCap className="w-6 h-6 text-blue-600" />
+                        <div className="bg-platform-400/15 rounded-full p-3">
+                          <FaGraduationCap className="w-6 h-6 text-platform-600" />
                         </div>
                         <div>
                           <h3 className="font-semibold text-gray-900">Formation Complète</h3>
@@ -392,16 +394,16 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full w-3/4"></div>
+                        <div className="h-full bg-gradient-to-r from-platform-600 to-platform-950 rounded-full w-3/4"></div>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Progression</span>
-                        <span className="font-semibold text-blue-600">75%</span>
+                        <span className="font-semibold text-platform-600">75%</span>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="absolute top-8 left-8 w-full h-full bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl opacity-20 blur-xl"></div>
+                <div className="absolute top-8 left-8 w-full h-full bg-gradient-to-br from-platform-400 to-platform-800 rounded-2xl opacity-20 blur-xl"></div>
               </div>
             </div>
           </div>
@@ -410,19 +412,19 @@ export default function Home() {
         {/* Test de niveau — page d&apos;accueil (plus dans le dashboard) */}
         <section
           id="evaluation-ia"
-          className="py-14 bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 text-white border-y border-indigo-800/50"
+          className="py-14 bg-gradient-to-r from-platform-950 via-platform-800 to-platform-950 text-white border-y border-platform-800/50"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
               <div className="space-y-3 max-w-2xl">
-                <div className="inline-flex items-center gap-2 text-indigo-200 text-sm font-medium">
+                <div className="inline-flex items-center gap-2 text-platform-200 text-sm font-medium">
                   <FiCpu className="w-4 h-4 shrink-0" aria-hidden />
                   <span>Évaluation assistée par IA</span>
                 </div>
                 <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                   Identifiez votre niveau avant de choisir une formation
                 </h2>
-                <p className="text-indigo-100/95 text-base leading-relaxed">
+                <p className="text-platform-200/95 text-base leading-relaxed">
                   Un test rapide en informatique vous donne un niveau indicatif et des conseils pour
                   viser une formation adaptée à vos acquis — directement depuis la page d&apos;accueil.
                 </p>
@@ -433,7 +435,7 @@ export default function Home() {
                     <Button
                       variant="primary"
                       size="lg"
-                      className="bg-white text-indigo-900 hover:bg-indigo-50 border-0 w-full sm:w-auto justify-center shadow-lg"
+                      className="!bg-white !text-platform-950 hover:!bg-platform-200/35 border-0 w-full sm:w-auto justify-center shadow-lg focus:!ring-platform-600"
                     >
                       Passer le test de niveau
                       <FiArrowRight className="ml-2 w-5 h-5" />
@@ -446,7 +448,7 @@ export default function Home() {
                     <Button
                       variant="primary"
                       size="lg"
-                      className="bg-white text-indigo-900 hover:bg-indigo-50 border-0 w-full sm:w-auto justify-center shadow-lg"
+                      className="!bg-white !text-platform-950 hover:!bg-platform-200/35 border-0 w-full sm:w-auto justify-center shadow-lg focus:!ring-platform-600"
                     >
                       Se connecter pour le test
                       <FiArrowRight className="ml-2 w-5 h-5" />
@@ -470,7 +472,7 @@ export default function Home() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-4 text-blue-600">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-platform-400/15 to-platform-200/25 rounded-full mb-4 text-platform-600">
                     {stat.icon}
                   </div>
                   <div className="text-3xl font-bold text-gray-900 mb-2">{stat.number}</div>
@@ -488,11 +490,11 @@ export default function Home() {
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
                 {selectedCategory ? (
                   <>
-                    Formations <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{selectedCategory}</span>
+                    Formations <span className="bg-gradient-to-r from-platform-800 via-platform-600 to-platform-400 bg-clip-text text-transparent">{selectedCategory}</span>
                   </>
                 ) : (
                   <>
-                    Formations <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Populaires</span>
+                    Formations <span className="bg-gradient-to-r from-platform-800 via-platform-600 to-platform-400 bg-clip-text text-transparent">Populaires</span>
                   </>
                 )}
               </h2>
@@ -506,7 +508,7 @@ export default function Home() {
 
             {loading ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-platform-600 mx-auto"></div>
                 <p className="mt-4 text-gray-600">Chargement des formations...</p>
               </div>
             ) : courses.length === 0 ? (
@@ -538,9 +540,9 @@ export default function Home() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {courses.map((course) => (
-                  <div key={course._id} className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 h-full flex flex-col border border-gray-100 hover:border-blue-200 transform hover:-translate-y-1">
+                  <div key={course._id} className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 h-full flex flex-col border border-gray-100 hover:border-platform-400/50 transform hover:-translate-y-1">
                       {/* Thumbnail Section */}
-                      <div className="relative h-52 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 overflow-hidden">
+                      <div className="relative h-52 bg-gradient-to-br from-platform-950 via-platform-600 to-platform-400 overflow-hidden">
                         {course.thumbnail ? (
                           <>
                             <img 
@@ -551,7 +553,7 @@ export default function Home() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                           </>
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600">
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-platform-950 via-platform-600 to-platform-400">
                             <FaGraduationCap className="w-24 h-24 text-white opacity-30" />
                           </div>
                         )}
@@ -560,14 +562,14 @@ export default function Home() {
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                           <div className="transform scale-90 group-hover:scale-100 transition-transform duration-300">
                             <div className="w-16 h-16 bg-white/95 rounded-full flex items-center justify-center shadow-2xl">
-                              <FiPlayCircle className="w-8 h-8 text-blue-600" />
+                              <FiPlayCircle className="w-8 h-8 text-platform-600" />
                             </div>
                           </div>
                         </div>
 
                         {/* Category Badge */}
                         <div className="absolute top-3 left-3">
-                          <span className="px-3 py-1.5 text-xs font-semibold bg-white/95 backdrop-blur-sm text-blue-700 rounded-full shadow-lg">
+                          <span className="px-3 py-1.5 text-xs font-semibold bg-white/95 backdrop-blur-sm text-platform-800 rounded-full shadow-lg">
                             {course.category}
                           </span>
                         </div>
@@ -589,7 +591,7 @@ export default function Home() {
                       {/* Content Section */}
                       <div className="p-5 flex-1 flex flex-col">
                         {/* Title */}
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200 leading-snug">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-platform-600 transition-colors duration-200 leading-snug">
                           {course.title}
                         </h3>
 
@@ -601,7 +603,7 @@ export default function Home() {
                         {/* Instructor */}
                         <div className="flex items-center space-x-3 mb-4 pb-4 border-b border-gray-100">
                           <div className="relative">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md ring-2 ring-white">
+                            <div className="w-10 h-10 bg-gradient-to-br from-platform-600 to-platform-950 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md ring-2 ring-white">
                               {course.instructor?.firstName?.[0]}{course.instructor?.lastName?.[0]}
                             </div>
                             <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
@@ -619,8 +621,8 @@ export default function Home() {
                           <div className="flex items-center space-x-4">
                             {course.resources?.videos && course.resources.videos.length > 0 && (
                               <div className="flex items-center space-x-1.5 text-gray-600">
-                                <div className="p-1.5 bg-blue-50 rounded-lg">
-                                  <FiVideo className="w-3.5 h-3.5 text-blue-600" />
+                                <div className="p-1.5 bg-platform-200/20 rounded-lg">
+                                  <FiVideo className="w-3.5 h-3.5 text-platform-600" />
                                 </div>
                                 <span className="text-xs font-medium">{course.resources.videos.length}</span>
                               </div>
@@ -655,7 +657,7 @@ export default function Home() {
                               e.stopPropagation();
                               handleOpenModal(course);
                             }}
-                            className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors group/btn"
+                            className="flex items-center space-x-2 text-platform-600 hover:text-platform-800 transition-colors group/btn"
                           >
                             <span className="text-sm font-semibold">
                               Découvrir
@@ -666,7 +668,7 @@ export default function Home() {
                       </div>
 
                       {/* Hover Border Effect */}
-                      <div className="absolute inset-0 border-2 border-blue-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      <div className="absolute inset-0 border-2 border-platform-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     </div>
                 ))}
               </div>
@@ -690,7 +692,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Pourquoi choisir <span className="text-blue-600">itkane</span> ?
+                Pourquoi choisir <span className="text-platform-600">itkane</span> ?
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Une expérience d'apprentissage complète avec tous les outils dont vous avez besoin pour réussir
@@ -712,11 +714,11 @@ export default function Home() {
         </section>
 
         {/* Categories Section */}
-        <section id="categories" className="py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <section id="categories" className="py-24 bg-gradient-to-br from-gray-50 via-white to-platform-200/25">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Explorez nos <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">catégories</span>
+                Explorez nos <span className="bg-gradient-to-r from-platform-800 via-platform-600 to-platform-400 bg-clip-text text-transparent">catégories</span>
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Trouvez la formation parfaite pour développer vos compétences
@@ -733,27 +735,27 @@ export default function Home() {
                     className={`
                       relative group text-center p-6 rounded-2xl border-2 transition-all duration-300
                       ${isSelected 
-                        ? 'border-blue-500 bg-blue-50 shadow-lg scale-105' 
-                        : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md hover:scale-105'
+                        ? 'border-platform-600 bg-platform-200/25 shadow-lg scale-105' 
+                        : 'border-gray-200 bg-white hover:border-platform-400/60 hover:shadow-md hover:scale-105'
                       }
                     `}
                   >
                     <div className={`
                       inline-flex items-center justify-center w-16 h-16 ${category.color} rounded-xl mb-4 text-white
                       transition-transform duration-300
-                      ${isSelected ? 'scale-110 ring-4 ring-blue-200' : 'group-hover:scale-110'}
+                      ${isSelected ? 'scale-110 ring-4 ring-platform-400/45' : 'group-hover:scale-110'}
                     `}>
                       {category.icon}
                     </div>
                     <h3 className={`
                       font-semibold transition-colors duration-300
-                      ${isSelected ? 'text-blue-600' : 'text-gray-900 group-hover:text-blue-600'}
+                      ${isSelected ? 'text-platform-600' : 'text-gray-900 group-hover:text-platform-600'}
                     `}>
                       {category.name}
                     </h3>
                     {isSelected && (
                       <div className="absolute top-2 right-2">
-                        <div className="w-3 h-3 bg-blue-600 rounded-full animate-pulse"></div>
+                        <div className="w-3 h-3 bg-platform-600 rounded-full animate-pulse"></div>
                       </div>
                     )}
                   </button>
@@ -764,13 +766,13 @@ export default function Home() {
             {/* Badge de catégorie sélectionnée */}
             {selectedCategory && (
               <div className="mt-8 flex justify-center">
-                <div className="inline-flex items-center space-x-3 px-6 py-3 bg-blue-100 border-2 border-blue-300 rounded-full">
-                  <span className="text-sm font-medium text-blue-900">
+                <div className="inline-flex items-center space-x-3 px-6 py-3 bg-platform-400/15 border-2 border-platform-400 rounded-full">
+                  <span className="text-sm font-medium text-platform-950">
                     Filtré par: <span className="font-bold">{selectedCategory}</span>
                   </span>
                   <button
                     onClick={() => setSelectedCategory(null)}
-                    className="ml-2 text-blue-600 hover:text-blue-800 transition-colors"
+                    className="ml-2 text-platform-600 hover:text-platform-950 transition-colors"
                   >
                     <FiX className="w-4 h-4" />
                   </button>
@@ -800,7 +802,7 @@ export default function Home() {
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full rounded-xl bg-white text-slate-900 font-semibold shadow-lg shadow-black/25 hover:bg-white/95 hover:shadow-xl hover:shadow-black/30 transition-all duration-200 border-0 py-4 flex items-center justify-center gap-2"
+                  className="w-full rounded-xl !bg-white !text-slate-900 font-semibold shadow-lg shadow-black/25 hover:!bg-white/95 hover:shadow-xl hover:shadow-black/30 transition-all duration-200 border-0 py-4 flex items-center justify-center gap-2 focus:!ring-slate-400"
                 >
                   <span>Créer un compte gratuit</span>
                   <FiArrowRight className="w-5 h-5 shrink-0" />
@@ -835,34 +837,34 @@ export default function Home() {
               <div>
                 <h4 className="text-white font-semibold mb-4">Navigation</h4>
                 <ul className="space-y-2 text-sm">
-                  <li><Link href="/courses" className="hover:text-blue-400 transition-colors">Formations</Link></li>
-                  <li><Link href="#evaluation-ia" className="hover:text-blue-400 transition-colors">Évaluation IA</Link></li>
-                  <li><Link href="#features" className="hover:text-blue-400 transition-colors">Fonctionnalités</Link></li>
-                  <li><Link href="#categories" className="hover:text-blue-400 transition-colors">Catégories</Link></li>
-                  <li><Link href="/register" className="hover:text-blue-400 transition-colors">S'inscrire</Link></li>
+                  <li><Link href="/courses" className="hover:text-platform-400 transition-colors">Formations</Link></li>
+                  <li><Link href="#evaluation-ia" className="hover:text-platform-400 transition-colors">Évaluation IA</Link></li>
+                  <li><Link href="#features" className="hover:text-platform-400 transition-colors">Fonctionnalités</Link></li>
+                  <li><Link href="#categories" className="hover:text-platform-400 transition-colors">Catégories</Link></li>
+                  <li><Link href="/register" className="hover:text-platform-400 transition-colors">S'inscrire</Link></li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="text-white font-semibold mb-4">Support</h4>
                 <ul className="space-y-2 text-sm">
-                  <li><Link href="#" className="hover:text-blue-400 transition-colors">Centre d'aide</Link></li>
-                  <li><Link href="#" className="hover:text-blue-400 transition-colors">Contact</Link></li>
-                  <li><Link href="#" className="hover:text-blue-400 transition-colors">FAQ</Link></li>
-                  <li><Link href="#" className="hover:text-blue-400 transition-colors">Politique de confidentialité</Link></li>
+                  <li><Link href="#" className="hover:text-platform-400 transition-colors">Centre d'aide</Link></li>
+                  <li><Link href="#" className="hover:text-platform-400 transition-colors">Contact</Link></li>
+                  <li><Link href="#" className="hover:text-platform-400 transition-colors">FAQ</Link></li>
+                  <li><Link href="#" className="hover:text-platform-400 transition-colors">Politique de confidentialité</Link></li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="text-white font-semibold mb-4">Suivez-nous</h4>
                 <div className="flex space-x-4">
-                  <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                  <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-platform-600 transition-colors cursor-pointer">
                     <FiUsers className="w-5 h-5" />
                   </div>
-                  <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                  <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-platform-600 transition-colors cursor-pointer">
                     <FiTrendingUp className="w-5 h-5" />
                   </div>
-                  <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                  <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-platform-600 transition-colors cursor-pointer">
                     <FiAward className="w-5 h-5" />
                   </div>
                 </div>
@@ -888,7 +890,7 @@ export default function Home() {
               </button>
 
               {/* Course Image/Thumbnail */}
-              <div className="relative h-64 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 overflow-hidden -mx-6 -mt-4 mb-6">
+              <div className="relative h-64 bg-gradient-to-br from-platform-950 via-platform-600 to-platform-400 overflow-hidden -mx-6 -mt-4 mb-6">
                 {selectedCourse.thumbnail ? (
                   <>
                     <img 
@@ -905,7 +907,7 @@ export default function Home() {
                 )}
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="flex items-center space-x-3 mb-3">
-                    <span className="px-3 py-1.5 text-xs font-semibold bg-white/95 backdrop-blur-sm text-blue-700 rounded-full">
+                    <span className="px-3 py-1.5 text-xs font-semibold bg-white/95 backdrop-blur-sm text-platform-800 rounded-full">
                       {selectedCourse.category}
                     </span>
                     <span className={`px-3 py-1.5 text-xs font-semibold rounded-full backdrop-blur-sm ${
@@ -946,8 +948,8 @@ export default function Home() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200">
                   {selectedCourse.resources?.videos && selectedCourse.resources.videos.length > 0 && (
                     <div className="flex items-center space-x-3">
-                      <div className="p-3 bg-blue-100 rounded-xl">
-                        <FiVideo className="w-6 h-6 text-blue-600" />
+                      <div className="p-3 bg-platform-400/15 rounded-xl">
+                        <FiVideo className="w-6 h-6 text-platform-600" />
                       </div>
                       <div>
                         <div className="text-2xl font-bold text-gray-900">{selectedCourse.resources.videos.length}</div>
@@ -978,8 +980,8 @@ export default function Home() {
                     </div>
                   )}
                   <div className="flex items-center space-x-3">
-                    <div className="p-3 bg-indigo-100 rounded-xl">
-                      <FiClock className="w-6 h-6 text-indigo-600" />
+                    <div className="p-3 bg-platform-400/12 rounded-xl">
+                      <FiClock className="w-6 h-6 text-platform-600" />
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-gray-900">{selectedCourse.duration}</div>
@@ -993,7 +995,7 @@ export default function Home() {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">À propos du formateur</h3>
                   <div className="flex items-center space-x-4">
                     <div className="relative">
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                      <div className="w-16 h-16 bg-gradient-to-br from-platform-600 to-platform-950 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
                         {selectedCourse.instructor?.firstName?.[0]}{selectedCourse.instructor?.lastName?.[0]}
                       </div>
                       <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>

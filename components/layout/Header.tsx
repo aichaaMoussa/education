@@ -57,14 +57,14 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
             {user ? (
               <>
                 <div className="flex items-center space-x-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
-                    <FiUser className="w-4 h-4 text-blue-600" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-platform-400/15">
+                    <FiUser className="h-4 w-4 text-platform-600" />
                   </div>
                   <div className="hidden md:block text-sm">
                     <p className="text-gray-700 font-medium">
                       {user.firstName} {user.lastName}
                     </p>
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                    <span className="rounded-full bg-platform-400/15 px-2 py-0.5 text-xs font-medium text-platform-950">
                       {getRoleLabel(user.role.name)}
                     </span>
                   </div>
@@ -83,13 +83,13 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                  className="px-4 py-2 text-sm text-gray-700 transition-colors hover:text-platform-600"
                 >
                   Connexion
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                  className="rounded-lg bg-platform-600 px-4 py-2 text-sm text-white shadow-sm transition-colors hover:bg-platform-800"
                 >
                   Inscription
                 </Link>

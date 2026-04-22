@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FiSearch, FiFilter, FiX, FiStar, FiClock, FiUsers, FiArrowRight } from 'react-icons/fi';
 import Header from '../../components/layout/Header';
@@ -163,8 +164,15 @@ export default function Courses() {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header Section */}
           <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-4">
-              <Logo size="md" showText={false} />
+            <div className="mb-4 flex items-center space-x-3">
+              <Image
+                src="/images/Group.png"
+                alt="Communauté itkane"
+                width={160}
+                height={90}
+                className="h-auto w-[120px] shrink-0 translate-x-2 object-contain object-center sm:translate-x-3"
+                priority
+              />
               <div>
                 <h1 className="text-4xl font-bold text-gray-900">Toutes les Formations</h1>
                 <p className="text-gray-600 mt-1">
@@ -346,7 +354,7 @@ export default function Courses() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Logo size="lg" showText={false} className="opacity-50" />
+                     
                       </div>
                     )}
                     <div className="absolute top-4 right-4 flex flex-col items-end gap-2">

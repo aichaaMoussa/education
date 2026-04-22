@@ -153,7 +153,7 @@ export default function Dashboard() {
             <div className="max-w-7xl mx-auto">
               <div className="mb-8">
                 <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  Bienvenue, {user?.firstName || ''} {user?.lastName || ''}! 👋
+                  Bienvenue, {user?.firstName || ''} {user?.lastName || ''}! 
                 </h1>
                 <p className="text-gray-600 text-lg">
                   {user?.role?.name === 'admin' 
@@ -178,15 +178,15 @@ export default function Dashboard() {
                   {user?.role?.name === 'admin' ? (
                     <>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <Card hover className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-white shadow-lg">
+                        <Card hover className="border-l-4 border-l-platform-600 bg-gradient-to-br from-platform-200/25 to-white shadow-lg">
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="text-sm font-medium text-gray-600 mb-1">Total Formations</p>
                               <p className="text-3xl font-bold text-gray-900">{stats.courses}</p>
                               <p className="text-xs text-gray-500 mt-1">{stats.formationsApprouvees} approuvées</p>
                             </div>
-                            <div className="bg-blue-100 rounded-full p-4">
-                              <FiBook className="w-8 h-8 text-blue-600" />
+                            <div className="bg-platform-400/15 rounded-full p-4">
+                              <FiBook className="w-8 h-8 text-platform-600" />
                             </div>
                           </div>
                         </Card>
@@ -261,15 +261,15 @@ export default function Dashboard() {
                     </>
                   ) : user?.role?.name === 'formateur' || user?.role?.name === 'instructor' ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      <Card hover className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-white shadow-lg">
+                      <Card hover className="border-l-4 border-l-platform-600 bg-gradient-to-br from-platform-200/25 to-white shadow-lg">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm font-medium text-gray-600 mb-1">Mes Formations</p>
                             <p className="text-3xl font-bold text-gray-900">{stats.courses}</p>
                             <p className="text-xs text-gray-500 mt-1">Total créées</p>
                           </div>
-                          <div className="bg-blue-100 rounded-full p-4">
-                            <FiBook className="w-8 h-8 text-blue-600" />
+                          <div className="bg-platform-400/15 rounded-full p-4">
+                          <FiBook className="w-8 h-8 text-platform-600" />
                           </div>
                         </div>
                       </Card>
@@ -302,15 +302,15 @@ export default function Dashboard() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      <Card hover className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-white shadow-lg">
+                      <Card hover className="border-l-4 border-l-platform-600 bg-gradient-to-br from-platform-200/25 to-white shadow-lg">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm font-medium text-gray-600 mb-1">Mes Formations</p>
                             <p className="text-3xl font-bold text-gray-900">{stats.courses}</p>
                             <p className="text-xs text-gray-500 mt-1">Achetées</p>
                           </div>
-                          <div className="bg-blue-100 rounded-full p-4">
-                            <FiBook className="w-8 h-8 text-blue-600" />
+                          <div className="bg-platform-400/15 rounded-full p-4">
+                          <FiBook className="w-8 h-8 text-platform-600" />
                           </div>
                         </div>
                       </Card>

@@ -94,7 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({ items, userPermissions = [] }) => {
               className={`
                 w-full flex items-center justify-between px-5 py-3.5 rounded-xl transition-all duration-300 group relative
                 ${isActive || hasActiveChild
-                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl shadow-blue-500/30' 
+                  ? 'bg-gradient-to-r from-platform-950 via-platform-600 to-platform-400 text-white shadow-xl shadow-platform-600/25' 
                   : 'text-gray-300 hover:bg-gradient-to-r hover:from-gray-700/60 hover:to-gray-700/40 hover:text-white hover:shadow-lg'
                 }
               `}
@@ -117,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ items, userPermissions = [] }) => {
               )}
             </button>
             {isExpanded && (
-              <ul className="mt-2.5 space-y-2 ml-6 border-l-2 border-gradient-to-b from-blue-500/30 to-transparent pl-4 animate-fadeIn">
+              <ul className="mt-2.5 ml-6 space-y-2 border-l-2 border-platform-600/35 pl-4 animate-fadeIn">
                 {item.children!.map(child => renderItem(child, level + 1))}
               </ul>
             )}
@@ -128,7 +128,7 @@ const Sidebar: React.FC<SidebarProps> = ({ items, userPermissions = [] }) => {
             className={`
               flex items-center space-x-4 px-5 py-3.5 rounded-xl transition-all duration-300 group relative overflow-hidden
               ${isActive 
-                ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl shadow-blue-500/30' 
+                ? 'bg-gradient-to-r from-platform-950 via-platform-600 to-platform-400 text-white shadow-xl shadow-platform-600/25' 
                 : 'text-gray-300 hover:bg-gradient-to-r hover:from-gray-700/60 hover:to-gray-700/40 hover:text-white hover:shadow-lg hover:translate-x-1'
               }
             `}
@@ -158,13 +158,13 @@ const Sidebar: React.FC<SidebarProps> = ({ items, userPermissions = [] }) => {
       <div className="p-6 border-b border-gray-700/40 bg-gradient-to-r from-gray-800/80 via-gray-800/60 to-transparent backdrop-blur-sm">
         <div className="flex items-center space-x-4">
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl blur-md opacity-60 group-hover:opacity-80 transition-opacity"></div>
-            <div className="relative bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-xl p-2.5 shadow-lg transform group-hover:scale-105 transition-transform">
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-platform-600 to-platform-950 blur-md opacity-60 transition-opacity group-hover:opacity-80"></div>
+            <div className="relative transform rounded-xl bg-gradient-to-br from-platform-800 via-platform-600 to-platform-400 p-2.5 shadow-lg transition-transform group-hover:scale-105">
               <FaGraduationCap className="text-xl text-white" />
             </div>
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent tracking-tight">
+            <h2 className="bg-gradient-to-r from-white via-platform-200 to-platform-400 bg-clip-text text-lg font-bold tracking-tight text-transparent">
               Navigation
             </h2>
             <p className="text-xs text-gray-400 mt-0.5 font-medium">Menu principal</p>

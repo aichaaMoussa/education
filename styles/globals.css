@@ -5,6 +5,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Palette logo itkane */
+  --platform-950: #071f3f;
+  --platform-800: #082551;
+  --platform-600: #124e9c;
+  --platform-400: #1fa0d9;
+  --platform-200: #4fe1ff;
 }
 
 @media (prefers-color-scheme: dark) {

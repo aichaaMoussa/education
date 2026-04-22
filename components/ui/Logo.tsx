@@ -9,7 +9,7 @@ interface LogoProps {
 }
 
 /** Logo itkane depuis `public/images/logo-itkane.png` */
-const LOGO_SRC = '/images/Group.png';
+const LOGO_SRC = '/images/logo-itkane (1).png';
 
 const Logo: React.FC<LogoProps> = ({
   className = '',
@@ -50,7 +50,7 @@ const Logo: React.FC<LogoProps> = ({
       />
       {showText && (
         <span
-          className={`${textSizes[size]} font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-indigo-700 transition-all duration-300`}
+          className={`${textSizes[size]} font-bold bg-gradient-to-r from-platform-800 via-platform-600 to-platform-400 bg-clip-text text-transparent group-hover:from-platform-950 group-hover:to-platform-200 transition-all duration-300`}
         >
           itkane
         </span>

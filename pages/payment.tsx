@@ -639,7 +639,7 @@ function PaymentPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Logo size="lg" showText={false} className="opacity-50" />
+                       
                       </div>
                     )}
                   </div>

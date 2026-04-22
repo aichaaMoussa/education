@@ -27,7 +27,7 @@ const Input: React.FC<InputProps> = ({
         id={inputId}
         className={`
           w-full px-4 py-2 border rounded-lg
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+          focus:outline-none focus:ring-2 focus:ring-platform-400 focus:border-transparent
           transition-all duration-200
           ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}
           ${className}
